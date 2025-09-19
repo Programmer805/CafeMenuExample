@@ -1,0 +1,208 @@
+@model Domain.DTOs.ProductDto
+
+@{
+    ViewBag.Title = "Ürün Sil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Ürün Yönetimi
+                    </div>
+                    <h2 class="page-title">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                        Ürün Sil
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Geri Dön
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h3 class="card-title">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Ürün Silme Onayı
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger" role="alert">
+                                <h4 class="alert-title">Dikkat!</h4>
+                                <div class="text-secondary">
+                                    Bu işlem geri alınamaz. Ürünü silmek istediğinizden emin misiniz?
+                                </div>
+                            </div>
+
+                            <!-- Ürün Bilgileri -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                                    {
+                                        <img src="@Model.ImagePath" alt="@Model.ProductName" class="img-fluid rounded" style="max-height: 200px;">
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 200px;">
+                                            <i class="fas fa-image text-muted fa-3x"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-8">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Ürün Adı:</strong></td>
+                                                <td>@Model.ProductName</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Kategori:</strong></td>
+                                                <td>@Model.CategoryName</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Fiyat:</strong></td>
+                                                <td>
+                                                    <span class="badge bg-success fs-6">
+                                                        @Model.Price.ToString("C", new System.Globalization.CultureInfo("tr-TR"))
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Oluşturulma:</strong></td>
+                                                <td>@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                            </tr>
+                                            @if (Model.UpdatedDate.HasValue)
+                                            {
+                                                <tr>
+                                                    <td><strong>Son Güncelleme:</strong></td>
+                                                    <td>@Model.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Bağımlılık Kontrolleri -->
+                            <div id="dependencyCheck" class="mt-4">
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Kontrol ediliyor...</span>
+                                    </div>
+                                    <span class="ms-2">Ürün bağımlılıkları kontrol ediliyor...</span>
+                                </div>
+                            </div>
+
+                            <div id="dependencyResult" class="mt-4" style="display: none;">
+                                <!-- AJAX ile doldurulacak -->
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <div class="d-flex">
+                                <a href="@Url.Action("Index")" class="btn btn-link">İptal</a>
+                                
+                                @using (Html.BeginForm("Delete", "Product", FormMethod.Post, new { @class = "ms-auto" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.HiddenFor(model => model.ID)
+                                    
+                                    <button type="submit" id="deleteButton" class="btn btn-danger" disabled>
+                                        <i class="fas fa-trash"></i> Ürünü Sil
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Bağımlılık kontrolü yap
+            checkDependencies();
+            
+            // Form submit onayı
+            $('form').on('submit', function(e) {
+                if (!confirm('Bu ürünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        function checkDependencies() {
+            $.ajax({
+                url: '@Url.Action("CheckCanDelete", "Product")',
+                type: 'GET',
+                data: { id: @Model.ID },
+                success: function(result) {
+                    $('#dependencyCheck').hide();
+                    $('#dependencyResult').show();
+                    
+                    if (result.CanDelete) {
+                        $('#dependencyResult').html(`
+                            <div class="alert alert-warning" role="alert">
+                                <h4 class="alert-title">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Ürün Silinebilir
+                                </h4>
+                                <div class="text-secondary">
+                                    Bu ürünün silinmesini engelleyen bir bağımlılık bulunamadı.
+                                </div>
+                            </div>
+                        `);
+                        $('#deleteButton').prop('disabled', false);
+                    } else {
+                        $('#dependencyResult').html(`
+                            <div class="alert alert-danger" role="alert">
+                                <h4 class="alert-title">
+                                    <i class="fas fa-times-circle text-danger me-2"></i>
+                                    Ürün Silinemez
+                                </h4>
+                                <div class="text-secondary">
+                                    <strong>Sebep:</strong> ${result.Message}
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        Önce bu bağımlılıkları kaldırmanız gerekiyor.
+                                    </small>
+                                </div>
+                            </div>
+                        `);
+                        $('#deleteButton').prop('disabled', true);
+                    }
+                },
+                error: function() {
+                    $('#dependencyCheck').hide();
+                    $('#dependencyResult').show().html(`
+                        <div class="alert alert-danger" role="alert">
+                            <h4 class="alert-title">Hata</h4>
+                            <div class="text-secondary">
+                                Bağımlılık kontrolü yapılırken bir hata oluştu. Lütfen tekrar deneyin.
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+        }
+    </script>
+}

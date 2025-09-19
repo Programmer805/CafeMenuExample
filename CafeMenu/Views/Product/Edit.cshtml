@@ -1,0 +1,286 @@
+@model Domain.DTOs.ProductUpdateDto
+@{
+    ViewBag.Title = "Ürün Düzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-box"></i> Ürün Düzenle
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-info">
+                                    <i class="fas fa-eye"></i> Detaylar
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Ürünler
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Ürün Bilgileri</h3>
+                        </div>
+                        <div class="card-body">
+                            @using (Html.BeginForm("Edit", "Product", FormMethod.Post, new { @class = "row g-3" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(m => m.ID)
+                                
+                                <div class="col-md-12">
+                                    <label for="ProductName" class="form-label">Ürün Adı <span class="text-danger">*</span></label>
+                                    @Html.TextBoxFor(m => m.ProductName, new { @class = "form-control", placeholder = "Ürün adını giriniz" })
+                                    @Html.ValidationMessageFor(m => m.ProductName, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="Description" class="form-label">Açıklama</label>
+                                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "3", placeholder = "Ürün açıklamasını giriniz" })
+                                    @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="CategoryID" class="form-label">Kategori <span class="text-danger">*</span></label>
+                                    @Html.DropDownListFor(m => m.CategoryID, ViewBag.Categories as SelectList, 
+                                        "-- Kategori Seçin --", new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.CategoryID, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Price" class="form-label">Fiyat <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="text" id="Price" name="Price" class="form-control" placeholder="0,00" pattern="[0-9]+([,][0-9]{1,2})?" value="@Model.Price.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("tr-TR"))" />
+                                        <span class="input-group-text">₺</span>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                                    {
+                                        <div class="mb-3">
+                                            <label class="form-label">Mevcut Resim</label>
+                                            <div>
+                                                <img src="@Model.ImagePath" alt="Mevcut resim" class="rounded" style="max-height: 100px; object-fit: cover;">
+                                            </div>
+                                        </div>
+                                    }
+                                    <label for="ImagePath" class="form-label">Resim URL'si</label>
+                                    @Html.TextBoxFor(m => m.ImagePath, new { @class = "form-control", placeholder = "https://example.com/resim.jpg", type = "url" })
+                                    @Html.ValidationMessageFor(m => m.ImagePath, "", new { @class = "text-danger" })
+                                    <small class="form-text text-muted">
+                                        Yeni URL girerseniz mevcut resim değiştirilecektir. Desteklenen formatlar: JPG, JPEG, PNG, GIF, BMP, WEBP
+                                    </small>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="card-footer text-end">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Güncelle
+                                        </button>
+                                        <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> İptal
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Önizleme</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="productPreview" class="text-center">
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" style="height: 150px;">
+                                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                                    {
+                                        <img src="@Model.ImagePath" alt="@Model.ProductName" class="img-fluid rounded" style="max-height: 150px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-image fa-3x text-muted"></i>
+                                    }
+                                </div>
+                                <h5 id="previewName">@Model.ProductName</h5>
+                                <p id="previewDescription">@(Model.Description ?? "Açıklama yok")</p>
+                                <span id="previewCategory" class="badge bg-blue">@(ViewBag.CurrentCategory ?? "Kategori")</span>
+                                <div class="mt-2">
+                                    <strong id="previewPrice" class="h4 text-success">₺@Model.Price.ToString("N2")</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Bilgilendirme</h3>
+                        </div>
+                        <div class="card-body">
+                            <h4>Ürün ID: @Model.ID</h4>
+                            <p class="text-muted mb-3">
+                                Bu ürünün sistemdeki benzersiz numarasıdır ve değiştirilemez.
+                            </p>
+                            
+                            <h4>Resim Değişikliği</h4>
+                            <p class="text-muted">
+                                Yeni resim URL'si girerseniz:
+                            </p>
+                            <ul class="text-muted">
+                                <li>Mevcut resim yeni URL ile değişir</li>
+                                <li>HTTP veya HTTPS başlangıçlı olmalıdır</li>
+                                <li>Menüde yeni resim görünür</li>
+                            </ul>
+                            
+                            <h4>Kategori Değişikliği</h4>
+                            <p class="text-muted">
+                                Kategori değiştirdiğinizde ürün yeni kategoride görünmeye başlar.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+$(document).ready(function() {
+    // Fiyat alanı için input maskesi ve format
+    $('#Price').on('input', function() {
+        var value = $(this).val();
+        // Sadece rakam ve virgül karakterlerine izin ver
+        value = value.replace(/[^0-9,]/g, '');
+        
+        // Birden fazla virgülü engelle
+        var commaCount = (value.match(/,/g) || []).length;
+        if (commaCount > 1) {
+            value = value.substring(0, value.lastIndexOf(','));
+        }
+        
+        // Virgülden sonra en fazla 2 hane
+        var parts = value.split(',');
+        if (parts[1] && parts[1].length > 2) {
+            parts[1] = parts[1].substring(0, 2);
+            value = parts.join(',');
+        }
+        
+        $(this).val(value);
+        
+        // Preview güncelle
+        var priceStr = $(this).val();
+        var price = parseFloat(priceStr.replace(',', '.')) || @Model.Price.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        $('#previewPrice').text('₺' + price.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+    });
+    
+    // Live preview
+    $('#ProductName').on('input', function() {
+        var name = $(this).val() || '@Model.ProductName';
+        $('#previewName').text(name);
+    });
+    
+    $('#Description').on('input', function() {
+        var description = $(this).val() || '@(Model.Description ?? "Açıklama yok")';
+        $('#previewDescription').text(description);
+    });
+    
+    $('#CategoryID').on('change', function() {
+        var categoryText = $(this).find('option:selected').text();
+        if (categoryText && categoryText !== '-- Kategori Seçin --') {
+            $('#previewCategory').text(categoryText);
+        }
+    });
+    
+    // Image preview from URL
+    $('#ImagePath').on('input', function() {
+        var imageUrl = $(this).val();
+        if (imageUrl && isValidUrl(imageUrl)) {
+            $('#productPreview .bg-light').html('<img src="' + imageUrl + '" class="img-fluid rounded" style="max-height: 150px; object-fit: cover;" onerror="showImageError()">');
+        } else if (!imageUrl) {
+            // Restore original image if URL is empty
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <text>
+                $('#productPreview .bg-light').html('<img src="@Model.ImagePath" alt="@Model.ProductName" class="img-fluid rounded" style="max-height: 150px; object-fit: cover;">');
+                </text>
+            }
+            else
+            {
+                <text>
+                $('#productPreview .bg-light').html('<i class="fas fa-image fa-3x text-muted"></i>');
+                </text>
+            }
+        }
+    });
+    
+    // URL validation helper
+    function isValidUrl(string) {
+        try {
+            var url = new URL(string);
+            return url.protocol === 'http:' || url.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    }
+    
+    // Image error handler
+    window.showImageError = function() {
+        $('#productPreview .bg-light').html('<i class="fas fa-exclamation-triangle fa-3x text-warning"></i><br><small class="text-muted">Resim yüklenemedi</small>');
+    };
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+        var isValid = true;
+        
+        if (!$('#ProductName').val().trim()) {
+            isValid = false;
+            $('#ProductName').addClass('is-invalid');
+        } else {
+            $('#ProductName').removeClass('is-invalid');
+        }
+        
+        if (!$('#CategoryID').val()) {
+            isValid = false;
+            $('#CategoryID').addClass('is-invalid');
+        } else {
+            $('#CategoryID').removeClass('is-invalid');
+        }
+        
+        var price = parseFloat($('#Price').val().replace(',', '.'));
+        if (!price || price <= 0) {
+            isValid = false;
+            $('#Price').addClass('is-invalid');
+        } else {
+            $('#Price').removeClass('is-invalid');
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Lütfen gerekli alanları doldurun.');
+        }
+    });
+});
+</script>
+}

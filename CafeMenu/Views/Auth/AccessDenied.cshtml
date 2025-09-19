@@ -1,0 +1,86 @@
+@{
+    ViewBag.Title = "Erişim Reddedildi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="page-wrapper">
+                <div class="container-xl">
+                    <div class="empty">
+                        <div class="empty-header">403</div>
+                        <p class="empty-title">Erişim Reddedildi</p>
+                        <p class="empty-subtitle text-muted">
+                            Bu sayfaya erişim yetkiniz bulunmuyor. Bu işlemi gerçekleştirmek için gerekli izinlere sahip değilsiniz.
+                        </p>
+                        <div class="empty-action">
+                            <div class="btn-list">
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <a href="@Url.Action("Index", "Admin")" class="btn btn-primary">
+                                        <i class="fas fa-home"></i>
+                                        Ana Sayfa
+                                    </a>
+                                    <a href="@Url.Action("Logout", "Auth")" class="btn btn-secondary">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        Çıkış Yap
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Login", "Auth")" class="btn btn-primary">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        Giriş Yap
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.empty-header {
+    font-size: 6rem;
+    font-weight: 300;
+    line-height: 1;
+    color: #626976;
+    margin-bottom: 1rem;
+}
+
+.empty {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    text-align: center;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.empty-subtitle {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    max-width: 400px;
+}
+
+.empty-action .btn-list {
+    gap: 0.5rem;
+}
+
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+</style>

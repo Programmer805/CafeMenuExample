@@ -1,0 +1,81 @@
+{
+  "Environments": {
+    "Development": {
+      "Database": {
+        "Server": "(localdb)\\MSSQLLocalDB",
+        "DatabaseName": "CafeMenu_Dev",
+        "IntegratedSecurity": true
+      },
+      "Api": {
+        "BaseUrl": "https://localhost:44367/api/",
+        "ExchangeRateApiKey": "dev-api-key-here"
+      },
+      "Features": {
+        "DebugMode": true,
+        "DetailedErrors": true,
+        "CacheEnabled": false,
+        "TestDataSeed": true
+      }
+    },
+    "Test": {
+      "Database": {
+        "Server": "test-sql-server.database.windows.net",
+        "DatabaseName": "CafeMenu_Test",
+        "Username": "testuser",
+        "Password": "TestPass123!"
+      },
+      "Api": {
+        "BaseUrl": "https://cafemenu-test.azurewebsites.net/api/",
+        "ExchangeRateApiKey": "test-api-key-here"
+      },
+      "Features": {
+        "DebugMode": false,
+        "DetailedErrors": true,
+        "CacheEnabled": true,
+        "TestDataSeed": true
+      }
+    },
+    "Production": {
+      "Database": {
+        "Server": "prod-sql-server.database.windows.net",
+        "DatabaseName": "CafeMenu_Prod",
+        "Username": "produser",
+        "Password": "#{ProdDbPassword}#"
+      },
+      "Api": {
+        "BaseUrl": "https://cafemenu.com/api/",
+        "ExchangeRateApiKey": "#{ExchangeRateApiKey}#"
+      },
+      "Features": {
+        "DebugMode": false,
+        "DetailedErrors": false,
+        "CacheEnabled": true,
+        "EnableMinification": true,
+        "CDNBaseUrl": "https://cdn.cafemenu.com/"
+      }
+    }
+  },
+  "Deployment": {
+    "Azure": {
+      "ResourceGroup": "CafeMenu-RG",
+      "Location": "West Europe",
+      "AppServicePlans": {
+        "Dev": {
+          "Name": "CafeMenu-Dev-ASP",
+          "Sku": "F1",
+          "Tier": "Free"
+        },
+        "Test": {
+          "Name": "CafeMenu-Test-ASP",
+          "Sku": "B1",
+          "Tier": "Basic"
+        },
+        "Prod": {
+          "Name": "CafeMenu-Prod-ASP",
+          "Sku": "S1",
+          "Tier": "Standard"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,184 @@
+@{
+    ViewBag.Title = "Döviz Kuru Test";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        <i class="fas fa-exchange-alt me-2 text-primary"></i>
+                        Döviz Kuru Test Sayfası
+                    </h2>
+                    <div class="page-subtitle text-muted mt-1">
+                        Gerçek zamanlı döviz kuru test ve kontrol paneli
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <!-- Mevcut Kur Bilgisi -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Mevcut Kur Bilgisi</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Para Birimi Çifti</label>
+                                        <div class="form-control-plaintext">
+                                            <strong>@ViewBag.CurrencyPair</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Kur Değeri</label>
+                                        <div class="form-control-plaintext">
+                                            <span class="badge bg-primary fs-6">@ViewBag.ExchangeRate.ToString("N4")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Kaynak Para Birimi</label>
+                                        <div class="form-control-plaintext">@ViewBag.FromCurrency</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Hedef Para Birimi</label>
+                                        <div class="form-control-plaintext">@ViewBag.ToCurrency</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Linkleri -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Test Linkleri</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                <a href="@Url.Action("Index", new { from = "TRY", to = "USD" })" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-dollar-sign me-2"></i>
+                                    TRY → USD (Türk Lirası → Dolar)
+                                </a>
+                                <a href="@Url.Action("Index", new { from = "TRY", to = "EUR" })" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-euro-sign me-2"></i>
+                                    TRY → EUR (Türk Lirası → Euro)
+                                </a>
+                                <a href="@Url.Action("Index", new { from = "USD", to = "TRY" })" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-lira-sign me-2"></i>
+                                    USD → TRY (Dolar → Türk Lirası)
+                                </a>
+                                <a href="@Url.Action("Index", new { from = "EUR", to = "TRY" })" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-lira-sign me-2"></i>
+                                    EUR → TRY (Euro → Türk Lirası)
+                                </a>
+                                <a href="@Url.Action("Index", new { from = "USD", to = "EUR" })" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-exchange-alt me-2"></i>
+                                    USD → EUR (Dolar → Euro)
+                                </a>
+                                <a href="@Url.Action("Index")" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-home me-2"></i>
+                                    Varsayılan (TRY → USD)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Örnek Hesaplama -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Örnek Hesaplama</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Miktar</label>
+                                        <input type="number" class="form-control" id="amount" value="100" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Kaynak</label>
+                                        <div class="form-control-plaintext">@ViewBag.FromCurrency</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Hedef</label>
+                                        <div class="form-control-plaintext">@ViewBag.ToCurrency</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sonuç</label>
+                                        <div class="form-control-plaintext">
+                                            <strong id="result">-</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="calculate()">
+                                <i class="fas fa-calculator me-2"></i>Hesapla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Geri Dön -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Menüye Geri Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function calculate() {
+            var amount = parseFloat(document.getElementById('amount').value) || 0;
+            var exchangeRate = @ViewBag.ExchangeRate;
+            var result = amount * exchangeRate;
+            
+            document.getElementById('result').innerHTML = result.toFixed(2) + ' @ViewBag.ToCurrency';
+        }
+
+        // Sayfa yüklendiğinde otomatik hesapla
+        $(document).ready(function() {
+            calculate();
+            
+            // Miktar değiştiğinde otomatik hesapla
+            $('#amount').on('input', function() {
+                calculate();
+            });
+        });
+    </script>
+}

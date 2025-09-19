@@ -1,0 +1,395 @@
+﻿@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <!-- Kategori Kartı -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="subheader">Toplam Kategoriler</div>
+                                <div class="ms-auto lh-1">
+                                    <div class="dropdown">
+                                        <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Son 7 gün</a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item active" href="#">Son 7 gün</a>
+                                            <a class="dropdown-item" href="#">Son 30 gün</a>
+                                            <a class="dropdown-item" href="#">Son 3 ay</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h1 mb-3">@ViewBag.CategoryCount</div>
+                            <div class="d-flex mb-2">
+                                <div>Aktif kategoriler</div>
+                                <div class="ms-auto">
+                                    <span class="text-green d-inline-flex align-items-center lh-1">
+                                        <i class="fas fa-arrow-up"></i> %12
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-primary" style="width: 75%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="75% Tamamlandı">
+                                    <span class="visually-hidden">75% Tamamlandı</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ürün Kartı -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="subheader">Toplam Ürünler</div>
+                                <div class="ms-auto lh-1">
+                                    <div class="dropdown">
+                                        <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Son 7 gün</a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item active" href="#">Son 7 gün</a>
+                                            <a class="dropdown-item" href="#">Son 30 gün</a>
+                                            <a class="dropdown-item" href="#">Son 3 ay</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h1 mb-3">@ViewBag.ProductCount</div>
+                            <div class="d-flex mb-2">
+                                <div>Aktif ürünler</div>
+                                <div class="ms-auto">
+                                    <span class="text-green d-inline-flex align-items-center lh-1">
+                                        <i class="fas fa-arrow-up"></i> %8
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-green" style="width: 60%" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="60% Tamamlandı">
+                                    <span class="visually-hidden">60% Tamamlandı</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kullanıcı Kartı -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="subheader">Toplam Kullanıcılar</div>
+                                <div class="ms-auto lh-1">
+                                    <div class="dropdown">
+                                        <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Son 7 gün</a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item active" href="#">Son 7 gün</a>
+                                            <a class="dropdown-item" href="#">Son 30 gün</a>
+                                            <a class="dropdown-item" href="#">Son 3 ay</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h1 mb-3">@ViewBag.UserCount</div>
+                            <div class="d-flex mb-2">
+                                <div>Aktif kullanıcılar</div>
+                                <div class="ms-auto">
+                                    <span class="text-red d-inline-flex align-items-center lh-1">
+                                        <i class="fas fa-arrow-down"></i> %3
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-yellow" style="width: 45%" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="45% Tamamlandı">
+                                    <span class="visually-hidden">45% Tamamlandı</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tenant Kartı -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="subheader">Toplam Tenantlar</div>
+                                <div class="ms-auto lh-1">
+                                    <div class="dropdown">
+                                        <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tümü</a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item active" href="#">Tümü</a>
+                                            <a class="dropdown-item" href="#">Aktif</a>
+                                            <a class="dropdown-item" href="#">Pasif</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h1 mb-3">@ViewBag.TenantCount</div>
+                            <div class="d-flex mb-2">
+                                <div>Aktif tenantlar</div>
+                                <div class="ms-auto">
+                                    <span class="text-green d-inline-flex align-items-center lh-1">
+                                        <i class="fas fa-arrow-up"></i> %15
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-orange" style="width: 85%" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" aria-label="85% Tamamlandı">
+                                    <span class="visually-hidden">85% Tamamlandı</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hızlı Erişim Kartı -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Hızlı Erişim</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6 col-lg-3">
+                                    <a href="@Url.Action("Index", "Category")" class="btn btn-outline-primary w-100 mb-3">
+                                        <i class="fas fa-tags me-2"></i>
+                                        Kategori Yönetimi
+                                    </a>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <a href="@Url.Action("Index", "Product")" class="btn btn-outline-success w-100 mb-3">
+                                        <i class="fas fa-box me-2"></i>
+                                        Ürün Yönetimi
+                                    </a>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <a href="@Url.Action("Index", "Tenant")" class="btn btn-outline-info w-100 mb-3">
+                                        <i class="fas fa-building me-2"></i>
+                                        Tenant Yönetimi
+                                    </a>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <a href="@Url.Action("Index", "Menu")" class="btn btn-outline-warning w-100 mb-3">
+                                        <i class="fas fa-eye me-2"></i>
+                                        Menü Görünümü
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canlı Güncellenen Kategori-Ürün Sayısı Pie Chart Widget -->
+                <div class="col-md-6 col-lg-6">
+                    <div class="card" id="category-widget">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0">Kategoriler - Ürün Dağılımı</h3>
+                            <div class="ms-auto text-muted small" id="category-widget-last-updated">Henüz yüklenmedi</div>
+                        </div>
+                        <div class="card-body">
+                            <div id="category-widget-spinner" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div>
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center" style="min-height:260px;">
+                                <canvas id="categoryPieChart" width="320" height="260" style="max-width:320px;max-height:260px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Döviz Kuru Widget (yanına eklendi) -->
+                <div class="col-md-6 col-lg-6">
+                    <div class="card" id="exchange-widget">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0">Güncel Döviz Kurları (TRY bazlı)</h3>
+                            <div class="ms-auto text-muted small" id="exchange-widget-last-updated">Henüz yüklenmedi</div>
+                        </div>
+                        <div class="card-body">
+                            <div id="exchange-widget-spinner" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div>
+                            </div>
+                            <div id="exchange-list" class="row gx-2 gy-2" style="display:none;">
+                                <!-- Individual rate cards inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <!-- Chart.js datalabels plugin CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script>
+        (function(){
+            var $ = window.jQuery;
+            var catUrl = '@Url.Action("GetCategoryProductCounts", "Admin")';
+            var exUrl = '@Url.Action("GetExchangeRates", "Admin")';
+            var chart = null;
+
+            function normalizeResponse(response) {
+                if (!response) return [];
+                if (Array.isArray(response)) return response;
+                if (response.Data && Array.isArray(response.Data)) return response.Data;
+                if (response.data && Array.isArray(response.data)) return response.data;
+                if (response.Data && response.Data.Items && Array.isArray(response.Data.Items)) return response.Data.Items;
+                if (response.items && Array.isArray(response.items)) return response.items;
+                if (typeof response === 'object') {
+                    for (var key in response) {
+                        if (Array.isArray(response[key])) return response[key];
+                    }
+                    return [];
+                }
+                return [];
+            }
+
+            function renderPieChart(items){
+                var ctx = document.getElementById('categoryPieChart').getContext('2d');
+                var labels = items.map(function(c){ return c.Name; });
+                var data = items.map(function(c){ return c.ProductCount || 0; });
+                var backgroundColors = [
+                    '#007bff','#28a745','#ffc107','#dc3545','#17a2b8','#6610f2','#fd7e14','#6f42c1','#20c997','#e83e8c'
+                ];
+                while(backgroundColors.length < labels.length){
+                    backgroundColors = backgroundColors.concat(backgroundColors);
+                }
+                var chartData = {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                };
+                var chartOptions = {
+                    responsive: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#222',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: function(value, context) {
+                                var label = context.chart.data.labels[context.dataIndex];
+                                // show truncated label if too long
+                                return label.length > 16 ? label.substring(0,14) + '...' : label;
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context){
+                                    var value = context.parsed || 0;
+                                    return value + ' ürün';
+                                }
+                            }
+                        }
+                    }
+                };
+                if(chart){
+                    chart.data = chartData;
+                    chart.options = chartOptions;
+                    chart.update();
+                }else{
+                    chart = new Chart(ctx, {
+                        type: 'pie',
+                        data: chartData,
+                        options: chartOptions,
+                        plugins: [ChartDataLabels]
+                    });
+                }
+            }
+
+            function renderExchangeRates(items){
+                var $list = $('#exchange-list');
+                $list.empty();
+                if(!items || items.length === 0){
+                    $list.append('<div class="col-12"><div class="text-muted">Kurlar bulunamadı.</div></div>');
+                    return;
+                }
+
+                items.forEach(function(r){
+                    var tpl = '<div class="col-6 col-md-4">'
+                        + '<div class="card p-2">'
+                        + '<div class="d-flex align-items-center">'
+                        + '<div class="flex-grow-1">'
+                        + '<div class="text-muted small">' + $('<div>').text(r.Name + ' (' + r.Code + ')').html() + '</div>'
+                        + '<div class="h5 mb-0">' + (r.Rate ? r.Rate.toFixed(4) : '-') + '</div>'
+                        + '</div>'
+                        + '</div>'
+                        + '</div>'
+                        + '</div>';
+                    $list.append(tpl);
+                });
+            }
+
+            function load(){
+                // Category chart
+                $('#category-widget-spinner').show();
+                $('#categoryPieChart').hide();
+                $.getJSON(catUrl)
+                    .done(function(response){
+                        var data = normalizeResponse(response);
+                        renderPieChart(data);
+                        var now = new Date();
+                        $('#category-widget-last-updated').text('Son güncelleme: ' + now.toLocaleTimeString());
+                    })
+                    .fail(function(){
+                        if(chart){ chart.destroy(); chart = null; }
+                        $('#category-widget-last-updated').text('Veriler yüklenemedi.');
+                    })
+                    .always(function(){
+                        $('#category-widget-spinner').hide();
+                        $('#categoryPieChart').show();
+                    });
+
+                // Exchange rates
+                $('#exchange-widget-spinner').show();
+                $('#exchange-list').hide();
+                $.getJSON(exUrl)
+                    .done(function(response){
+                        var data = normalizeResponse(response);
+                        renderExchangeRates(data);
+                        var now = new Date();
+                        $('#exchange-widget-last-updated').text('Son güncelleme: ' + now.toLocaleTimeString());
+                    })
+                    .fail(function(){
+                        $('#exchange-list').empty().append('<div class="col-12"><div class="text-danger">Kurlar yüklenemedi.</div></div>');
+                    })
+                    .always(function(){
+                        $('#exchange-widget-spinner').hide();
+                        $('#exchange-list').show();
+                    });
+            }
+
+            $(function(){
+                load();
+                setInterval(load, 10000); // 10 saniye
+            });
+        })();
+    </script>
+}

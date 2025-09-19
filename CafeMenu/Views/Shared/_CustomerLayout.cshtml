@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Cafe Menu</title>
+    
+    <!-- CSS -->
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --primary-color: #d4a574;
+            --secondary-color: #8b4513;
+            --accent-color: #f5f5dc;
+            --text-dark: #3c2415;
+            --text-light: #6b4e3d;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #f5f5dc 0%, #e8dcc0 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+            transform: translateY(-1px);
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(139, 69, 19, 0.7), rgba(212, 165, 116, 0.7)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><pattern id="coffee" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="20" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="1200" height="600" fill="url(%23coffee)"/></svg>');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 100px 0;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: -50px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: none;
+            overflow: hidden;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .product-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0,0,0,0.1), transparent);
+        }
+
+        .price-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 69, 19, 0.3);
+        }
+
+        .filter-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 100px;
+        }
+
+        .exchange-rate-display {
+            background: var(--accent-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 40px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 60px 0;
+            }
+            
+            .search-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .filter-sidebar {
+                position: static;
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="@Url.Action("Index", "Menu")">
+                <i class="fas fa-coffee"></i> Cafe Menu
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Menu")">
+                            <i class="fas fa-home"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#categories">
+                            <i class="fas fa-tags"></i> Kategoriler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#popular">
+                            <i class="fas fa-star"></i> Popüler
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    @if (ViewBag.ExchangeRate != null && ViewBag.ExchangeRate != 1.0m)
+                    {
+                        var fromCurrency = HttpContext.Current.Request.QueryString["from"] ?? "TRY";
+                        var toCurrency = HttpContext.Current.Request.QueryString["to"] ?? "TRY";
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="exchangeRateDropdown" role="button" data-toggle="dropdown">
+                                <i class="fas fa-exchange-alt"></i> 
+                                <span id="currentRate">@ViewBag.ExchangeRate.ToString("N4")</span>
+                                <small class="ms-1">(@fromCurrency→@toCurrency)</small>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="exchangeRateDropdown">
+                                <h6 class="dropdown-header">Döviz Kuru Bilgisi</h6>
+                                <div class="dropdown-item-text">
+                                    <small id="currencyPairInfo">Bilgi yükleniyor...</small>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" onclick="refreshExchangeRate()">
+                                    <i class="fas fa-sync-alt"></i> Kuru Yenile
+                                </a>
+                                <a class="dropdown-item" href="#" onclick="showCurrencySelector()">
+                                    <i class="fas fa-cog"></i> Para Birimi Değiştir
+                                </a>
+                            </div>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Login", "Auth")">
+                            <i class="fas fa-user"></i> Admin Girişi
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="margin-top: 70px;">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-coffee"></i> Cafe Menu</h5>
+                    <p>Lezzetli yemeklerin dijital menüsü</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; @DateTime.Now.Year Cafe Menu. Tüm hakları saklıdır.</p>
+                    <p>
+                        <a href="@Url.Action("Login", "Auth")" class="text-light">Admin Paneli</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/Scripts/jquery-3.7.0.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+        $(document).ready(function() {
+            // Smooth scrolling for anchor links
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if( target.length ) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 100
+                    }, 1000);
+                }
+            });
+
+            // Auto-hide alerts
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+
+            // Loading states for AJAX calls
+            $(document).ajaxStart(function() {
+                $('.loading-spinner').show();
+            }).ajaxStop(function() {
+                $('.loading-spinner').hide();
+            });
+            
+            // Döviz kuru bilgisini yükle
+            @if (ViewBag.ExchangeRate != null && ViewBag.ExchangeRate != 1.0m)
+            {
+                <text>loadExchangeRateInfo();</text>
+            }
+        });
+
+        // Search functionality
+        let searchTimeout;
+        function performSearch(searchTerm) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                if (searchTerm.length >= 3) {
+                    $.get('@Url.Action("Search", "Menu")', { term: searchTerm })
+                        .done(function(response) {
+                            if (response.Success && response.Data) {
+                                displaySearchResults(response.Data);
+                            }
+                        });
+                } else {
+                    hideSearchResults();
+                }
+            }, 300);
+        }
+
+        function displaySearchResults(results) {
+            let html = '<div class="search-results">';
+            if (results.length > 0) {
+                results.forEach(function(product) {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var fromCurrency = urlParams.get('from') || 'TRY';
+                    var toCurrency = urlParams.get('to') || 'TRY';
+                    var priceDisplay = '';
+                    
+                    if (product.PriceWithExchangeRate !== product.Price) {
+                        priceDisplay = `${product.PriceWithExchangeRate.toFixed(2)} ${toCurrency} (${product.Price.toFixed(2)} ${fromCurrency})`;
+                    } else {
+                        priceDisplay = `${product.Price.toFixed(2)} TL`;
+                    }
+                    
+                    html += `
+                        <div class="search-result-item" onclick="viewProduct(${product.Id})">
+                            <img src="${product.ImagePath || '/Content/Images/no-image.jpg'}" alt="${product.Name}">
+                            <div>
+                                <h6>${product.Name}</h6>
+                                <small>${product.CategoryName}</small>
+                                <span class="price">${priceDisplay}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<div class="no-results">Sonuç bulunamadı</div>';
+            }
+            html += '</div>';
+            
+            $('#searchResults').html(html).show();
+        }
+
+        function hideSearchResults() {
+            $('#searchResults').hide();
+        }
+
+        function viewProduct(productId) {
+            window.location.href = '@Url.Action("Product", "Menu")/' + productId;
+        }
+        
+        // Döviz kuru fonksiyonları
+        function loadExchangeRateInfo() {
+            $.get('@Url.Action("GetExchangeRateInfo", "Menu")')
+                .done(function(response) {
+                    if (response.Success && response.Data.success) {
+                        var data = response.Data;
+                        $('#currencyPairInfo').html(
+                            `<strong>${data.currencyPair}</strong><br/>` +
+                            `Son Güncelleme: ${data.lastUpdate}<br/>` +
+                            `Kaynak: ${data.source}`
+                        );
+                    }
+                })
+                .fail(function() {
+                    $('#currencyPairInfo').html('Bilgi alınamadı');
+                });
+        }
+        
+        function refreshExchangeRate() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var fromCurrency = urlParams.get('from') || 'TRY';
+            var toCurrency = urlParams.get('to') || 'TRY';
+            
+            $.post('@Url.Action("RefreshExchangeRate", "Menu")', {
+                fromCurrency: fromCurrency,
+                toCurrency: toCurrency
+            })
+            .done(function(response) {
+                if (response.Success && response.Data.success) {
+                    var data = response.Data;
+                    $('#currentRate').text(data.formattedRate);
+                    $('#currencyPairInfo').html(
+                        `<strong>${data.currencyPair}</strong><br/>` +
+                        `Son Güncelleme: ${data.lastUpdate}<br/>` +
+                        `Kaynak: API-Refresh`
+                    );
+                    
+                    // Sayfayı yenile (fiyatları güncellemek için)
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    alert('Döviz kuru yenilenemedi: ' + (response.Data.message || 'Bilinmeyen hata'));
+                }
+            })
+            .fail(function() {
+                alert('Döviz kuru yenileme sırasında bir hata oluştu.');
+            });
+        }
+        
+        function showCurrencySelector() {
+            var currencies = ['TRY', 'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF'];
+            var urlParams = new URLSearchParams(window.location.search);
+            var currentFrom = urlParams.get('from') || 'TRY';
+            var currentTo = urlParams.get('to') || 'TRY';
+            
+            var html = `
+                <div class="modal" tabindex="-1" id="currencyModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Para Birimi Seçin</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Kaynak Para Birimi:</label>
+                                        <select class="form-control" id="fromCurrencySelect">`;
+            
+            currencies.forEach(function(currency) {
+                html += `<option value="${currency}" ${currency === currentFrom ? 'selected' : ''}>${currency}</option>`;
+            });
+            
+            html += `       </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Hedef Para Birimi:</label>
+                                        <select class="form-control" id="toCurrencySelect">`;
+            
+            currencies.forEach(function(currency) {
+                html += `<option value="${currency}" ${currency === currentTo ? 'selected' : ''}>${currency}</option>`;
+            });
+            
+            html += `       </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                                <button type="button" class="btn btn-primary" onclick="applyCurrencyChange()">Uygula</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('body').append(html);
+            $('#currencyModal').modal('show');
+            
+            $('#currencyModal').on('hidden.bs.modal', function () {
+                $(this).remove();
+            });
+        }
+        
+        function applyCurrencyChange() {
+            var fromCurrency = $('#fromCurrencySelect').val();
+            var toCurrency = $('#toCurrencySelect').val();
+            
+            if (fromCurrency === toCurrency) {
+                alert('Kaynak ve hedef para birimleri aynı olamaz.');
+                return;
+            }
+            
+            var urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('from', fromCurrency);
+            urlParams.set('to', toCurrency);
+            
+            window.location.search = urlParams.toString();
+        }
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

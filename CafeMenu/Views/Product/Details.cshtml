@@ -1,0 +1,272 @@
+@model Domain.DTOs.ProductDto
+@{
+    ViewBag.Title = "Ürün Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-box"></i> Ürün Detayları
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Ürünler
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Genel Bilgiler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 text-center mb-3">
+                                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                                    {
+                                        <img src="@Model.ImagePath" alt="@Model.ProductName" 
+                                             class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-8">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Ürün Adı:</dt>
+                                        <dd class="col-sm-8"><strong>@Model.ProductName</strong></dd>
+                                        
+                                        <dt class="col-sm-4">Açıklama:</dt>
+                                        <dd class="col-sm-8">
+                                            @if (!string.IsNullOrEmpty(Model.Description))
+                                            {
+                                                @Model.Description
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Açıklama eklenmemiş</span>
+                                            }
+                                        </dd>
+                                        
+                                        <dt class="col-sm-4">Kategori:</dt>
+                                        <dd class="col-sm-8">
+                                            <span class="badge bg-blue">@Model.CategoryName</span>
+                                        </dd>
+                                        
+                                        <dt class="col-sm-4">Fiyat:</dt>
+                                        <dd class="col-sm-8">
+                                            <strong class="text-success">@Model.Price.ToString("C")</strong>
+                                        </dd>
+                                        
+                                        <dt class="col-sm-4">Oluşturulma Tarihi:</dt>
+                                        <dd class="col-sm-8">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</dd>
+                                        
+                                        <dt class="col-sm-4">Oluşturan:</dt>
+                                        <dd class="col-sm-8">@Model.CreatorUserName</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (Model.ProductProperties != null && Model.ProductProperties.Any())
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Ürün Özellikleri</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th>Özellik</th>
+                                                <th>Değer</th>
+                                                <th>İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var property in Model.ProductProperties)
+                                            {
+                                                <tr>
+                                                    <td><strong>@property.PropertyKey</strong></td>
+                                                    <td>@property.PropertyValue</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                                onclick="removeProperty(@property.ID)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Hızlı İşlemler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-outline-warning">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Ürünü Düzenle
+                                </a>
+                                <a href="@Url.Action("Details", "Category", new { id = Model.CategoryID })" class="btn btn-outline-info">
+                                    <i class="fas fa-tags me-2"></i>
+                                    Kategoriyi Görüntüle
+                                </a>
+                                <a href="@Url.Action("Index", "Menu", new { categoryId = Model.CategoryID })" class="btn btn-outline-success">
+                                    <i class="fas fa-eye me-2"></i>
+                                    Menüde Görüntüle
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(@Model.ID)">
+                                    <i class="fas fa-trash me-2"></i>
+                                    Ürünü Sil
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Özellik Ekle</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="addPropertyForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Özellik</label>
+                                    <select id="propertySelect" class="form-control">
+                                        <option value="">Özellik seçin...</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-plus"></i> Özellik Ekle
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">İstatistikler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-12">
+                                    <div class="h1 m-0">@(Model.ProductProperties?.Count ?? 0)</div>
+                                    <div class="text-muted">Özellik</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+$(document).ready(function() {
+    loadAvailableProperties();
+});
+
+function loadAvailableProperties() {
+    var existingPropertyIds = @Html.Raw(Json.Encode(Model.ProductProperties?.Select(p => p.PropertyID).ToList() ?? new List<int>()));
+    
+    $.get('/Property/GetAll')
+        .done(function(properties) {
+            var select = $('#propertySelect');
+            select.empty().append('<option value="">Özellik seçin...</option>');
+            
+            properties.forEach(function(property) {
+                // Zaten eklenmiş özellikleri gösterme
+                var alreadyExists = existingPropertyIds.includes(property.ID);
+                if (!alreadyExists) {
+                    select.append(`<option value="${property.ID}">${property.Key}: ${property.Value}</option>`);
+                }
+            });
+        })
+        .fail(function() {
+            console.log('Özellikler yüklenemedi');
+        });
+}
+
+$('#addPropertyForm').submit(function(e) {
+    e.preventDefault();
+    
+    var propertyId = $('#propertySelect').val();
+    if (!propertyId) {
+        alert('Lütfen bir özellik seçin.');
+        return;
+    }
+    
+    $.post('/ProductProperty/Create', {
+        ProductID: @Model.ID,
+        PropertyID: propertyId
+    })
+    .done(function(result) {
+        if (result.Success) {
+            location.reload();
+        } else {
+            alert('Özellik eklenemedi: ' + result.Error);
+        }
+    })
+    .fail(function() {
+        alert('Özellik eklenirken hata oluştu.');
+    });
+});
+
+function removeProperty(productPropertyId) {
+    if (confirm('Bu özelliği kaldırmak istediğinizden emin misiniz?')) {
+        $.post('/ProductProperty/Delete', { id: productPropertyId })
+            .done(function(result) {
+                if (result.Success) {
+                    location.reload();
+                } else {
+                    alert('Özellik kaldırılamadı: ' + result.Error);
+                }
+            })
+            .fail(function() {
+                alert('Özellik kaldırılırken hata oluştu.');
+            });
+    }
+}
+
+function confirmDelete(productId) {
+    if (confirm('Bu ürünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+        window.location.href = '@Url.Action("Delete")' + '/' + productId;
+    }
+}
+</script>
+}

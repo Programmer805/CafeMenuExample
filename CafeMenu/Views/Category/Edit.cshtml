@@ -1,0 +1,191 @@
+@model Domain.DTOs.CategoryUpdateDto
+@{
+    ViewBag.Title = "Kategori Düzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-tags"></i> Kategori Düzenle
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-info">
+                                    <i class="fas fa-eye"></i> Detaylar
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Kategoriler
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Kategori Bilgileri</h3>
+                        </div>
+                        <div class="card-body">
+                            @using (Html.BeginForm("Edit", "Category", FormMethod.Post, new { @class = "row g-3" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(m => m.ID)
+                                
+                                <div class="col-md-12">
+                                    <label for="CategoryName" class="form-label">Kategori Adı <span class="text-danger">*</span></label>
+                                    @Html.TextBoxFor(m => m.CategoryName, new { @class = "form-control", placeholder = "Kategori adını giriniz" })
+                                    @Html.ValidationMessageFor(m => m.CategoryName, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="ParentCategoryID" class="form-label">Üst Kategori</label>
+                                    @Html.DropDownListFor(m => m.ParentCategoryID, ViewBag.ParentCategories as SelectList, 
+                                        "-- Ana Kategori --", new { @class = "form-control" })
+                                    <small class="form-text text-muted">
+                                        Bu kategoriyi başka bir kategorinin altına taşımak istiyorsanız üst kategoriyi seçin.
+                                    </small>
+                                    @Html.ValidationMessageFor(m => m.ParentCategoryID, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="card-footer text-end">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Güncelle
+                                        </button>
+                                        <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> İptal
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Bilgilendirme</h3>
+                        </div>
+                        <div class="card-body">
+                            <h4>Kategori ID: @Model.ID</h4>
+                            <p class="text-muted mb-3">
+                                Bu kategorinin sistemdeki benzersiz numarasıdır ve değiştirilemez.
+                            </p>
+                            
+                            <h4>Üst Kategori Değişikliği</h4>
+                            <p class="text-muted">
+                                Üst kategoriyi değiştirdiğinizde:
+                            </p>
+                            <ul class="text-muted">
+                                <li>Kategorinin konumu menüde değişir</li>
+                                <li>Alt kategoriler bu kategori ile birlikte taşınır</li>
+                                <li>Ürünler etkilenmez</li>
+                            </ul>
+                            
+                            <h4>Dikkat!</h4>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Bu kategoriyi kendi alt kategorilerinden birinin altına taşıyamazsınız.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Mevcut Kategori Yapısı</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="categoryTree">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Yükleniyor...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+$(document).ready(function() {
+    loadCategoryTree();
+});
+
+function loadCategoryTree() {
+    $.get('@Url.Action("GetHierarchy")')
+        .done(function(response) {
+            if (response.Success && response.Data) {
+                renderCategoryTree(response.Data);
+            } else {
+                $('#categoryTree').html('<p class="text-muted">Kategori yapısı yüklenemedi.</p>');
+            }
+        })
+        .fail(function() {
+            $('#categoryTree').html('<p class="text-danger">Kategori yapısı yüklenirken hata oluştu.</p>');
+        });
+}
+
+function renderCategoryTree(categories) {
+    const currentCategoryId = @Model.ID;
+    const rootCategories = categories.filter(c => !c.ParentCategoryID);
+    let html = '';
+
+    if (rootCategories.length === 0) {
+        html = '<p class="text-muted">Henüz kategori bulunmuyor.</p>';
+    } else {
+        html = '<ul class="list-unstyled">';
+        rootCategories.forEach(category => {
+            html += renderCategoryNode(category, categories, currentCategoryId);
+        });
+        html += '</ul>';
+    }
+
+    $('#categoryTree').html(html);
+}
+
+function renderCategoryNode(category, allCategories, currentCategoryId) {
+    const children = allCategories.filter(c => c.ParentCategoryID === category.ID);
+    const isCurrentCategory = category.ID === currentCategoryId;
+    
+    let html = `
+        <li class="mb-1">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-tag ${isCurrentCategory ? 'text-warning' : 'text-primary'} me-2"></i>
+                <span class="${isCurrentCategory ? 'fw-bold text-warning' : ''}">${category.CategoryName}</span>
+                ${isCurrentCategory ? '<span class="badge bg-warning ms-2">Düzenlenen</span>' : ''}
+            </div>
+    `;
+
+    if (children.length > 0) {
+        html += '<ul class="list-unstyled ms-3 mt-1">';
+        children.forEach(child => {
+            html += renderCategoryNode(child, allCategories, currentCategoryId);
+        });
+        html += '</ul>';
+    }
+
+    html += '</li>';
+    return html;
+}
+</script>
+}

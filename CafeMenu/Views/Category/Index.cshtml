@@ -1,0 +1,308 @@
+@model IEnumerable<Domain.DTOs.CategoryDto>
+@{
+    ViewBag.Title = "Kategori Yönetimi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-tags"></i> Kategori Yönetimi
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Create")" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Yeni Kategori
+                                </a>
+                                <button type="button" class="btn btn-info" onclick="loadCategoryHierarchy()">
+                                    <i class="fas fa-sitemap"></i> Hiyerarşi Görünümü
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-tags"></i> Kategoriler
+                            </h5>
+                        </div>
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Kategori Adı</th>
+                                    <th>Üst Kategori</th>
+                                    <th>Oluşturulma Tarihi</th>
+                                    <th>Oluşturan</th>
+                                    <th class="text-center">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@category.CategoryName</strong>
+                                            @if (category.SubCategories != null && category.SubCategories.Any())
+                                            {
+                                                <span class="badge bg-info ms-2">@category.SubCategories.Count() alt kategori</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(category.ParentCategoryName))
+                                            {
+                                                <span class="badge bg-secondary">@category.ParentCategoryName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Ana Kategori</span>
+                                            }
+                                        </td>
+                                        <td>@category.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td>@category.CreatorUserName</td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="@Url.Action("Details", new { id = category.ID })" 
+                                                   class="btn btn-outline-info" title="Detaylar">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="@Url.Action("Edit", new { id = category.ID })" 
+                                                   class="btn btn-outline-primary" title="Düzenle">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="checkCanDelete(@category.ID)" title="Sil">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Henüz kategori bulunmuyor</h5>
+                        <p class="text-muted">İlk kategorinizi oluşturmak için "Yeni Kategori" butonuna tıklayın.</p>
+                        <a href="@Url.Action("Create")" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> İlk Kategorinizi Oluşturun
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-sitemap"></i> Kategori Hiyerarşisi
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="categoryHierarchy">
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Hiyerarşi yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar"></i> İstatistikler
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-primary">@Model.Count()</h4>
+                            <small class="text-muted">Toplam Kategori</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success">@Model.Count(c => c.ParentCategoryID == null)</h4>
+                        <small class="text-muted">Ana Kategori</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kategori Sil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="deleteMessage"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+    let categoryToDelete = null;
+
+    $(document).ready(function() {
+        loadCategoryHierarchy();
+    });
+
+    function loadCategoryHierarchy() {
+        $('#categoryHierarchy').html(`
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Yükleniyor...</span>
+                </div>
+                <p class="mt-2 text-muted">Hiyerarşi yükleniyor...</p>
+            </div>
+        `);
+
+        $.get('@Url.Action("GetHierarchy")')
+            .done(function(response) {
+                if (response.Success && response.Data) {
+                    renderCategoryTree(response.Data);
+                } else {
+                    $('#categoryHierarchy').html('<p class="text-muted">Hiyerarşi yüklenemedi.</p>');
+                }
+            })
+            .fail(function() {
+                $('#categoryHierarchy').html('<p class="text-danger">Hiyerarşi yüklenirken hata oluştu.</p>');
+            });
+    }
+
+    function renderCategoryTree(categories) {
+        const rootCategories = categories.filter(c => !c.ParentCategoryID);
+        let html = '';
+
+        if (rootCategories.length === 0) {
+            html = '<p class="text-muted">Henüz kategori bulunmuyor.</p>';
+        } else {
+            html = '<ul class="list-unstyled">';
+            rootCategories.forEach(category => {
+                html += renderCategoryNode(category, categories);
+            });
+            html += '</ul>';
+        }
+
+        $('#categoryHierarchy').html(html);
+    }
+
+    function renderCategoryNode(category, allCategories) {
+        const children = allCategories.filter(c => c.ParentCategoryID === category.ID);
+        let html = `
+            <li class="mb-2">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-tag text-primary me-2"></i>
+                    <strong>${category.CategoryName}</strong>
+                    ${category.Products && category.Products.length > 0 ? 
+                        `<span class="badge bg-success ms-2">${category.Products.length} ürün</span>` : ''}
+                </div>
+        `;
+
+        if (children.length > 0) {
+            html += '<ul class="list-unstyled ms-3 mt-2">';
+            children.forEach(child => {
+                html += renderCategoryNode(child, allCategories);
+            });
+            html += '</ul>';
+        }
+
+        html += '</li>';
+        return html;
+    }
+
+    function checkCanDelete(categoryId) {
+        categoryToDelete = categoryId;
+        
+        $.get('@Url.Action("CheckCanDelete")', { id: categoryId })
+            .done(function(response) {
+                if (response.Success && response.Data) {
+                    if (response.Data.CanDelete) {
+                        $('#deleteMessage').html(`
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Bu kategoriyi silmek istediğinizden emin misiniz?
+                            </div>
+                        `);
+                        $('#confirmDeleteBtn').show();
+                    } else {
+                        $('#deleteMessage').html(`
+                            <div class="alert alert-danger">
+                                <i class="fas fa-times-circle"></i>
+                                Bu kategori silinemez: ${response.Data.Message}
+                            </div>
+                        `);
+                        $('#confirmDeleteBtn').hide();
+                    }
+                    
+                    $('#deleteModal').modal('show');
+                }
+            })
+            .fail(function() {
+                alert('Silme kontrolü yapılırken hata oluştu.');
+            });
+    }
+
+    $('#confirmDeleteBtn').click(function() {
+        if (categoryToDelete) {
+            $.post('@Url.Action("Delete")', { 
+                id: categoryToDelete,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            })
+            .done(function(response) {
+                if (response.Success) {
+                    location.reload();
+                } else {
+                    alert('Silme işlemi başarısız: ' + (response.Error || 'Bilinmeyen hata'));
+                }
+            })
+            .fail(function() {
+                alert('Silme işlemi sırasında hata oluştu.');
+            });
+        }
+        
+        $('#deleteModal').modal('hide');
+    });
+</script>
+}

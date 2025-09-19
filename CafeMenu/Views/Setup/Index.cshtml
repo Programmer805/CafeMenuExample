@@ -1,0 +1,292 @@
+@model CafeMenu.Controllers.SetupViewModel
+@{
+    ViewBag.Title = "Sistem Kurulumu";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Cafe Menu</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .setup-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .setup-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .setup-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+            .setup-header h1 {
+                margin: 0;
+                font-size: 2.5rem;
+                font-weight: 300;
+            }
+
+            .setup-header p {
+                margin: 15px 0 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .setup-body {
+            padding: 40px;
+        }
+
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            }
+
+        .btn-setup {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            transition: transform 0.2s ease;
+        }
+
+            .btn-setup:hover {
+                transform: translateY(-2px);
+                color: white;
+            }
+
+        .icon-circle {
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .feature-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+            .feature-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .feature-item i {
+                color: #667eea;
+                margin-right: 10px;
+                width: 20px;
+            }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-card">
+            <div class="setup-header">
+                <div class="icon-circle">
+                    <i class="fas fa-rocket fa-2x"></i>
+                </div>
+                <h1>Hoş Geldiniz!</h1>
+                <p>Cafe Menu Sisteminizi Kurmaya Başlayalım</p>
+            </div>
+
+            <div class="setup-body">
+                <div class="welcome-text">
+                    <h4>🎉 Tebrikler! Sistemde İlk Kişisiniz</h4>
+                    <p>Cafe Menu sisteminizi kullanmaya başlamak için lütfen aşağıdaki bilgileri doldurun. Bu bilgiler sizin ilk işletmenizi ve admin hesabınızı oluşturacak.</p>
+                </div>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="fas fa-store"></i>
+                        <span>İşletmenizi sisteme kaydedin</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin hesabınızı oluşturun</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-utensils"></i>
+                        <span>Menü kategorilerinizi ve ürünlerinizi ekleyin</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Müşterileriniz QR kod ile menünüzü görüntülesin</span>
+                    </div>
+                </div>
+
+                @using (Html.BeginForm("Index", "Setup", FormMethod.Post, new { @class = "setup-form", enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Lütfen aşağıdaki hataları düzeltin:</h6>
+                            @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-store text-primary"></i> İşletme Adı
+                                </label>
+                                @Html.TextBoxFor(m => m.TenantName, new { @class = "form-control", placeholder = "Örn: Karadeniz Cafe & Restaurant" })
+                                @Html.ValidationMessageFor(m => m.TenantName, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 30px 0;">
+                    <h5 style="color: #667eea; margin-bottom: 20px;">
+                        <i class="fas fa-user-cog"></i> Admin Kullanıcı Bilgileri
+                    </h5>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Ad</label>
+                                @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", placeholder = "Adınız" })
+                                @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Soyad</label>
+                                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", placeholder = "Soyadınız" })
+                                @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Kullanıcı Adı</label>
+                                @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Giriş için kullanıcı adı" })
+                                @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Şifre</label>
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "En az 6 karakter" })
+                                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Şifre Tekrar</label>
+                                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Şifreyi tekrar girin" })
+                                @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <button type="submit" class="btn btn-setup">
+                            <i class="fas fa-rocket"></i> Sistemi Kur ve Başlayalım!
+                        </button>
+                    </div>
+                }
+
+                <div style="text-align: center; margin-top: 20px; color: #888; font-size: 14px;">
+                    <i class="fas fa-shield-alt"></i> Bu bilgiler güvenli bir şekilde saklanacaktır.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/Scripts/jquery-3.7.0.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Form submit animasyonu
+            $('.setup-form').on('submit', function () {
+                $('.btn-setup').html('<i class="fas fa-spinner fa-spin"></i> Kuruluyor...');
+                $('.btn-setup').prop('disabled', true);
+            });
+
+            // Input focus animasyonu
+            $('.form-control').on('focus', function () {
+                $(this).closest('.form-group').addClass('focused');
+            }).on('blur', function () {
+                $(this).closest('.form-group').removeClass('focused');
+            });
+        });
+    </script>
+</body>
+</html>

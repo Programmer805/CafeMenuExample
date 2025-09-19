@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="a6ac9c575b4e4e01b2f44195e7ae15ab" Name="Diagram1">
+        <EntityTypeShape EntityType="CafeMenuModel.Category" Width="1.5" PointX="5.25" PointY="9.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="CafeMenuModel.ProductProperty" Width="1.5" PointX="12.75" PointY="8.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CafeMenuModel.Product" Width="1.5" PointX="10.5" PointY="9.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="CafeMenuModel.Property" Width="1.5" PointX="8.25" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CafeMenuModel.Tenant" Width="1.5" PointX="0.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CafeMenuModel.User" Width="1.5" PointX="3" PointY="13.125" IsExpanded="true" />
+        <AssociationConnector Association="CafeMenuModel.FK_Categories_ParentCategory" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Categories_Tenants" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Categories_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Products_Categories" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_ProductProperties_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_ProductProperties_Properties" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_ProductProperties_Tenants" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Products_Tenants" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Products_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Properties_Tenants" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Properties_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="CafeMenuModel.FK_Users_Tenants" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

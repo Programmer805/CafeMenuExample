@@ -1,0 +1,81 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Cafe Menu Admin</title>
+    <!-- CSS'leri manuel yükleyelim -->
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/site.css" rel="stylesheet" />
+    <!-- Modernizr script -->
+    <script src="~/Scripts/modernizr-2.8.3.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
+        <div class="container">
+            @Html.ActionLink("Cafe Menu Admin", "Index", "Admin", new { area = "" }, new { @class = "navbar-brand" })
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li>@Html.ActionLink("Dashboard", "Index", "Admin", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Kategoriler", "Index", "Category", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Ürünler", "Index", "Product", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Tenantlar", "Index", "Tenant", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li><a href="@Url.Action("Index", "Menu")?tenantId=@(ViewBag.TenantId ?? CafeMenu.Infrastructure.TenantResolver.GetCurrentTenantId())" class="nav-link">Menü Görünümü</a></li>
+                </ul>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> @(Session["UserName"] ?? "Admin")
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="@Url.Action("Logout", "Auth")">
+                                    <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                }
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Cafe Menu Admin Panel</p>
+        </footer>
+    </div>
+
+    <!-- Script'leri manuel yükleyelim - Bundle hatasını önlemek için -->
+    <script src="~/Scripts/jquery-3.7.0.js"></script>
+    <!-- Bootstrap bundle (Popper.js dahil) - Dropdown'lar için gerekli -->
+    <script src="~/Scripts/bootstrap.bundle.js"></script>
+    
+    <!-- Dropdown manuel initialization -->
+    <script>
+        $(document).ready(function() {
+            // Bootstrap dropdown'larını manuel olarak aktifleştir
+            $('.dropdown-toggle').dropdown();
+            
+            // Debug: Bootstrap yüklendi mi kontrol et
+            console.log('Bootstrap dropdown available:', typeof $.fn.dropdown !== 'undefined');
+            
+            // Dropdown click event'ini manuel ekle
+            $('.dropdown-toggle').on('click', function(e) {
+                e.preventDefault();
+                $(this).dropdown('toggle');
+            });
+        });
+    </script>
+    
+    @RenderSection("scripts", required: false)
+</body>
+</html>

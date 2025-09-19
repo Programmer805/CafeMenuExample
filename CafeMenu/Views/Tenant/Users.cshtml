@@ -1,0 +1,723 @@
+@model IEnumerable<Domain.DTOs.UserDto>
+@{
+    ViewBag.Title = "Tenant Kullanıcıları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-users"></i> @ViewBag.Tenant.TenantName Kullanıcıları
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <button type="button" class="btn btn-primary btn-open-modal">
+                                    <i class="fas fa-plus"></i> Yeni Kullanıcı Ekle
+                                </button>
+                                <a href="@Url.Action("Details", new { id = ViewBag.Tenant.ID })" class="btn btn-info">
+                                    <i class="fas fa-building"></i> Tenant Detayları
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Tenant Listesi
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <div class="row row-deck row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                Kullanıcılar 
+                                <span class="badge bg-blue ms-2">@(Model?.Count() ?? 0) kullanıcı</span>
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            @if (Model != null && Model.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th>Kullanıcı Adı</th>
+                                                <th>E-posta</th>
+                                                <th>Rol</th>
+                                                <th>Durum</th>
+                                                <th>Son Giriş</th>
+                                                <th>Kayıt Tarihi</th>
+                                                <th class="w-1">İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var user in Model)
+                                            {
+                                                <tr id="user-row-@user.ID">
+                                                    <td>
+                                                        <div class="d-flex py-1 align-items-center">
+                                                            <div class="avatar me-2 bg-primary text-white" style="font-size: 14px;">
+                                                                @((!string.IsNullOrEmpty(user.Name) ? user.Name.Substring(0, 1) : "?").ToUpper())
+                                                            </div>
+                                                            <div class="flex-fill">
+                                                                <div class="font-weight-medium">@user.FullName</div>
+                                                                <small class="text-muted">ID: @user.ID</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><strong>@user.Username</strong></td>
+                                                    <td>@user.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                                    <td>
+                                                        <div class="btn-list flex-nowrap">
+                                                            <button type="button" class="btn btn-outline-warning btn-sm" 
+                                                                    onclick="editUser(@user.ID)" title="Düzenle">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                                    onclick="deleteUser(@user.ID)" title="Sil">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <p class="empty-title">Bu tenant'da henüz kullanıcı yok</p>
+                                    <p class="empty-subtitle text-muted">
+                                        İlk kullanıcıyı eklemek için yukarıdaki "Yeni Kullanıcı Ekle" butonunu kullanın.
+                                    </p>
+                                    <div class="empty-action">
+                                        <button type="button" class="btn btn-primary btn-open-modal">
+                                            <i class="fas fa-plus"></i>
+                                            İlk Kullanıcıyı Ekle
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kullanıcı Ekleme Modalı -->
+<div class="modal modal-blur fade" id="userCreateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus"></i> Yeni Kullanıcı Ekle - @ViewBag.Tenant.TenantName
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="userCreateForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ad <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="createUserName" name="Name" required maxlength="50">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Soyad <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="createUserSurname" name="Surname" required maxlength="50">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Kullanıcı Adı <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="createUsername" name="Username" required maxlength="50">
+                                <div class="invalid-feedback"></div>
+                                <small class="form-hint" id="usernameHint"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Şifre <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="createPassword" name="Password" required minlength="6">
+                                <div class="invalid-feedback"></div>
+                                <small class="form-hint">En az 6 karakter olmalıdır.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="createTenantId" name="TenantID" value="@ViewBag.Tenant.ID" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> İptal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Kullanıcı Düzenleme Modalı -->
+<div class="modal modal-blur fade" id="userEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-edit"></i> Kullanıcı Düzenle
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="userEditForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ad <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editUserName" name="Name" required maxlength="50">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Soyad <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editUserSurname" name="Surname" required maxlength="50">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kullanıcı Adı <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editUsername" name="Username" required maxlength="50">
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <input type="hidden" id="editUserId" name="ID" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> İptal
+                    </button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Güncelle
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="/Scripts/jquery-3.7.0.js"></script>
+<script>
+$(document).ready(function () {
+    // Test jQuery and Bootstrap
+    console.log('jQuery version:', $.fn.jquery);
+    console.log('Bootstrap version:', typeof $.fn.modal);
+    
+    // Test if modal can be opened manually
+    if (typeof $.fn.modal !== 'undefined') {
+        console.log('Bootstrap modal is available');
+    } else {
+        console.error('Bootstrap modal is NOT available!');
+    }
+    
+    // Test jQuery is working
+    console.log('jQuery loaded and ready!');
+    
+    // Test AJAX URL
+    console.log('Create URL:', '@Url.Action("CreateUser", "Tenant")');
+    
+    // Add click handlers for modal buttons with better debugging
+    $('.btn-open-modal').on('click', function (e) {
+        e.preventDefault();
+        console.log('Modal button clicked - opening user creation modal');
+        try {
+            $('#userCreateModal').modal('show');
+            console.log('Modal show command executed successfully');
+        } catch (error) {
+            console.error('Error opening modal:', error);
+            alert('Error opening modal: ' + error.message);
+        }
+    });
+    
+    // Debug: Check how many buttons were found
+    console.log('Found', $('.btn-open-modal').length, 'buttons with btn-open-modal class');
+    
+    // Also add click handler for any button that should open the modal
+    $('button:contains("Yeni Kullanıcı Ekle"), button:contains("İlk Kullanıcıyı Ekle")').on('click', function(e) {
+        e.preventDefault();
+        console.log('User creation button clicked (by text match)');
+        $('#userCreateModal').modal('show');
+    });
+    
+    // Kullanıcı ekleme formu submit işlemi
+    $('#userCreateForm').on('submit', function(e) {
+        e.preventDefault();
+        console.log('Form submitted!');
+        
+        var formData = {
+            TenantID: $('#createTenantId').val(),
+            Name: $('#createUserName').val().replace(/^\s+|\s+$/g, ''),
+            Surname: $('#createUserSurname').val().replace(/^\s+|\s+$/g, ''),
+            Username: $('#createUsername').val().replace(/^\s+|\s+$/g, ''),
+            Password: $('#createPassword').val()
+        };
+        
+        console.log('Form data:', formData);
+        
+        // Form validasyonu
+        if (!validateCreateForm(formData)) {
+            console.log('Form validation failed');
+            return;
+        }
+        
+        console.log('Form validation passed, sending AJAX...');
+        
+        // AJAX ile kullanıcı oluşturma
+        $.ajax({
+            url: '@Url.Action("CreateUser", "Tenant")',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#userCreateForm button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...');
+            },
+            success: function(result) {
+                console.log('Server response:', result);
+                
+                // Handle both direct success and nested success response
+                var isSuccess = result.Success || (result.Data && result.Data.Success);
+                var message = result.Message || (result.Data && result.Data.Message) || 'Kullanıcı başarıyla oluşturuldu.';
+                var errorMessage = result.Error || 'Kullanıcı oluşturulurken bir hata oluştu.';
+                
+                if (isSuccess) {
+                    $('#userCreateModal').modal('hide');
+                    showSuccessMessage(message);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showErrorMessage(errorMessage);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('AJAX Error:', xhr.responseText);
+                try {
+                    var errorResponse = JSON.parse(xhr.responseText);
+                    showErrorMessage(errorResponse.Error || 'Sunucu hatası: ' + error);
+                } catch (e) {
+                    showErrorMessage('Sunucu hatası: ' + error);
+                }
+            },
+            complete: function() {
+                $('#userCreateForm button[type="submit"]').prop('disabled', false).html('<i class="fas fa-save"></i> Kaydet');
+            }
+        });
+    });
+    
+    // Kullanıcı düzenleme formu submit işlemi
+    $('#userEditForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        var formData = {
+            ID: $('#editUserId').val(),
+            Name: $('#editUserName').val().replace(/^\s+|\s+$/g, ''),
+            Surname: $('#editUserSurname').val().replace(/^\s+|\s+$/g, ''),
+            Username: $('#editUsername').val().replace(/^\s+|\s+$/g, '')
+        };
+        
+        // Form validasyonu
+        if (!validateEditForm(formData)) {
+            return;
+        }
+        
+        // AJAX ile kullanıcı güncelleme
+        $.ajax({
+            url: '@Url.Action("UpdateUser", "Tenant")',
+            type: 'POST',
+            data: {
+                userUpdateDto: formData,
+                tenantId: @ViewBag.Tenant.ID
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $('#userEditForm button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Güncelleniyor...');
+            },
+            success: function(result) {
+                if (result.Success) {
+                    $('#userEditModal').modal('hide');
+                    showSuccessMessage(result.Message);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showErrorMessage(result.Error || 'Kullanıcı güncellenirken bir hata oluştu.');
+                }
+            },
+            error: function(xhr, status, error) {
+                showErrorMessage('Sunucu hatası: ' + error);
+            },
+            complete: function() {
+                $('#userEditForm button[type="submit"]').prop('disabled', false).html('<i class="fas fa-save"></i> Güncelle');
+            }
+        });
+    });
+    
+    // Kullanıcı adı kontrolü (anlık yazım sırasında)
+    var usernameTimeout;
+    $('#createUsername').on('input', function() {
+        var username = $(this).val().replace(/^\s+|\s+$/g, '');
+        var $hint = $('#usernameHint');
+        
+        clearTimeout(usernameTimeout);
+        
+        if (username.length >= 3) {
+            usernameTimeout = setTimeout(function() {
+                checkUsernameAvailability(username, $hint);
+            }, 500);
+        } else {
+            $hint.text('');
+        }
+    });
+    
+    // Modal temizleme - Bootstrap 4 syntax
+    $('#userCreateModal').on('hidden.bs.modal', function() {
+        clearCreateForm();
+    });
+    
+    $('#userEditModal').on('hidden.bs.modal', function() {
+        clearEditForm();
+    });
+    
+    // Modal kapatma butonları için ek handler'lar
+    $('[data-dismiss="modal"]').on('click', function() {
+        console.log('Modal dismiss button clicked');
+        var $modal = $(this).closest('.modal');
+        $modal.modal('hide');
+    });
+    
+    // ESC tuşu ile modal kapatma
+    $(document).on('keyup', function(e) {
+        if (e.keyCode === 27) { // ESC key
+            $('.modal.show').modal('hide');
+        }
+    });
+    
+    // Modal backdrop click ile kapatma
+    $('.modal').on('click', function(e) {
+        if (e.target === this) {
+            $(this).modal('hide');
+        }
+    });
+});
+
+// Kullanıcı düzenleme fonksiyonu
+function editUser(userId) {
+    // İlgili kullanıcı bilgilerini satırdan al
+    var $row = $('#user-row-' + userId);
+    var fullName = $row.find('td:eq(0) .font-weight-medium').text().replace(/^\s+|\s+$/g, '');
+    var username = $row.find('td:eq(1) strong').text().replace(/^\s+|\s+$/g, '');
+    
+    // Ad ve soyadı ayır (basit ayrıştırma)
+    var nameParts = fullName.split(' ');
+    var name = nameParts[0] || '';
+    var surname = nameParts.slice(1).join(' ') || '';
+    
+    // Form doldurutma
+    $('#editUserId').val(userId);
+    $('#editUserName').val(name);
+    $('#editUserSurname').val(surname);
+    $('#editUsername').val(username);
+    
+    // Modal açma
+    $('#userEditModal').modal('show');
+}
+
+// Kullanıcı silme fonksiyonu
+function deleteUser(userId) {
+    var $row = $('#user-row-' + userId);
+    var fullName = $row.find('td:eq(0) .font-weight-medium').text().replace(/^\s+|\s+$/g, '');
+    
+    if (confirm('"' + fullName + '" adlı kullanıcıyı silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!')) {
+        $.ajax({
+            url: '@Url.Action("DeleteUser", "Tenant")',
+            type: 'POST',
+            data: {
+                userId: userId,
+                tenantId: @ViewBag.Tenant.ID
+            },
+            dataType: 'json',
+            success: function(result) {
+                if (result.Success) {
+                    showSuccessMessage(result.Message);
+                    $row.fadeOut(300, function() {
+                        $(this).remove();
+                        updateUserCount();
+                    });
+                } else {
+                    showErrorMessage(result.Error || 'Kullanıcı silinirken bir hata oluştu.');
+                }
+            },
+            error: function(xhr, status, error) {
+                showErrorMessage('Sunucu hatası: ' + error);
+            }
+        });
+    }
+}
+
+// Kullanıcı adı uygunluk kontrolü
+function checkUsernameAvailability(username, $hint) {
+    $.ajax({
+        url: '@Url.Action("CheckUsername", "Tenant")',
+        type: 'POST',
+        data: {
+            username: username,
+            tenantId: @ViewBag.Tenant.ID
+        },
+        dataType: 'json',
+        success: function(result) {
+            if (result.Available) {
+                $hint.removeClass('text-danger').addClass('text-success').text('✓ ' + result.Message);
+                $('#createUsername').removeClass('is-invalid').addClass('is-valid');
+            } else {
+                $hint.removeClass('text-success').addClass('text-danger').text('✗ ' + result.Message);
+                $('#createUsername').removeClass('is-valid').addClass('is-invalid');
+            }
+        },
+        error: function() {
+            $hint.removeClass('text-success').addClass('text-danger').text('Kontrol edilemedi.');
+        }
+    });
+}
+
+// Form validasyon fonksiyonları
+function validateCreateForm(data) {
+    let isValid = true;
+    
+    // Ad validasyonu
+    if (!data.Name || data.Name.length < 2) {
+        showFieldError('#createUserName', 'Ad en az 2 karakter olmalıdır.');
+        isValid = false;
+    } else {
+        clearFieldError('#createUserName');
+    }
+    
+    // Soyad validasyonu
+    if (!data.Surname || data.Surname.length < 2) {
+        showFieldError('#createUserSurname', 'Soyad en az 2 karakter olmalıdır.');
+        isValid = false;
+    } else {
+        clearFieldError('#createUserSurname');
+    }
+    
+    // Kullanıcı adı validasyonu
+    if (!data.Username || data.Username.length < 3) {
+        showFieldError('#createUsername', 'Kullanıcı adı en az 3 karakter olmalıdır.');
+        isValid = false;
+    } else {
+        clearFieldError('#createUsername');
+    }
+    
+    // Şifre validasyonu
+    if (!data.Password || data.Password.length < 6) {
+        showFieldError('#createPassword', 'Şifre en az 6 karakter olmalıdır.');
+        isValid = false;
+    } else {
+        clearFieldError('#createPassword');
+    }
+    
+    return isValid;
+}
+
+function validateEditForm(data) {
+    var isValid = true;
+    
+    // Ad validasyonu
+    if (!data.Name || data.Name.length < 2) {
+        showFieldError('#editUserName', 'Ad en az 2 karakter olmalıdır.');
+        isValid = false;
+    } else {
+        clearFieldError('#editUserName');
+    }
+    
+    // Soyad validasyonu
+    if (!data.Surname || data.Surname.length < 2) {
+        showFieldError('#editUserSurname', 'Soyad en az 2 karakter olmalıdır.');
+        isValid = false;
+    } else {
+        clearFieldError('#editUserSurname');
+    }
+    
+    // Kullanıcı adı validasyonu
+    if (!data.Username || data.Username.length < 3) {
+        showFieldError('#editUsername', 'Kullanıcı adı en az 3 karakter olmalıdır.');
+        isValid = false;
+    } else {
+        clearFieldError('#editUsername');
+    }
+    
+    return isValid;
+}
+
+// Yardımcı fonksiyonlar
+function showFieldError(fieldSelector, message) {
+    $(fieldSelector).addClass('is-invalid');
+    $(fieldSelector).siblings('.invalid-feedback').text(message);
+}
+
+function clearFieldError(fieldSelector) {
+    $(fieldSelector).removeClass('is-invalid');
+    $(fieldSelector).siblings('.invalid-feedback').text('');
+}
+
+function clearCreateForm() {
+    $('#userCreateForm')[0].reset();
+    $('#userCreateForm .is-invalid').removeClass('is-invalid');
+    $('#userCreateForm .is-valid').removeClass('is-valid');
+    $('#usernameHint').text('');
+}
+
+function clearEditForm() {
+    $('#userEditForm')[0].reset();
+    $('#userEditForm .is-invalid').removeClass('is-invalid');
+}
+
+function showSuccessMessage(message) {
+    // Toast notification (Tabler için)
+    if (typeof window.Tabler !== 'undefined' && window.Tabler.alert) {
+        window.Tabler.alert({
+            message: message,
+            type: 'success',
+            icon: 'check'
+        });
+    } else {
+        // Fallback - basit alert
+        alert('Başarılı: ' + message);
+    }
+}
+
+function showErrorMessage(message) {
+    // Toast notification (Tabler için)
+    if (typeof window.Tabler !== 'undefined' && window.Tabler.alert) {
+        window.Tabler.alert({
+            message: message,
+            type: 'danger',
+            icon: 'exclamation-triangle'
+        });
+    } else {
+        // Fallback - basit alert
+        alert('Hata: ' + message);
+    }
+}
+
+function updateUserCount() {
+    var userCount = $('table tbody tr').length;
+    $('.card-title .badge').text(userCount + ' kullanıcı');
+    
+    // Eğer hiç kullanıcı kalmadıysa empty state göster
+    if (userCount === 0) {
+        $('.table-responsive').hide();
+        $('.empty').show();
+    }
+}
+
+// Eski toggle fonksiyonu kaldırıldı (artık kullanılmıyor)
+function toggleUserStatus(userId) {
+    console.warn('toggleUserStatus fonksiyonu artık kullanılmıyor.');
+}
+</script>
+
+<style>
+/* Modal kapatma butonları için ek stiller */
+.modal .close {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.modal .close:hover,
+.modal .close:focus {
+    color: #000;
+    text-decoration: none;
+    opacity: .75;
+}
+
+/* Modal backdrop için ek stil */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+/* Modal animasyonları */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+</style>

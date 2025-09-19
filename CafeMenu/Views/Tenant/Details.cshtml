@@ -1,0 +1,197 @@
+@model Domain.DTOs.TenantDto
+@{
+    ViewBag.Title = "Tenant Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-building"></i> Tenant Detayları
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Geri Dön
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Genel Bilgiler</h3>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">ID:</dt>
+                                <dd class="col-sm-8">@Model.ID</dd>
+                                
+                                <dt class="col-sm-4">Tenant Adı:</dt>
+                                <dd class="col-sm-8"><strong>@Model.TenantName</strong></dd>
+                                
+                                <dt class="col-sm-4">Durum:</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-success">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Pasif</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-4">Oluşturulma Tarihi:</dt>
+                                <dd class="col-sm-8">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                @if (ViewBag.Statistics != null)
+                {
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">İstatistikler</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6 col-lg-3">
+                                        <div class="card card-sm">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <span class="bg-primary text-white avatar">
+                                                            <i class="fas fa-users"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="font-weight-medium">
+                                                            @ViewBag.Statistics.UserCount
+                                                        </div>
+                                                        <div class="text-muted">
+                                                            Kullanıcı
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-3">
+                                        <div class="card card-sm">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <span class="bg-success text-white avatar">
+                                                            <i class="fas fa-tags"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="font-weight-medium">
+                                                            @ViewBag.Statistics.CategoryCount
+                                                        </div>
+                                                        <div class="text-muted">
+                                                            Kategori
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-3">
+                                        <div class="card card-sm">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <span class="bg-warning text-white avatar">
+                                                            <i class="fas fa-box"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="font-weight-medium">
+                                                            @ViewBag.Statistics.ProductCount
+                                                        </div>
+                                                        <div class="text-muted">
+                                                            Ürün
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Hızlı İşlemler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6 col-lg-3">
+                                    <a href="@Url.Action("Users", new { id = Model.ID })" class="btn btn-outline-primary w-100 mb-3">
+                                        <i class="fas fa-users me-2"></i>
+                                        Kullanıcıları Görüntüle
+                                    </a>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-outline-warning w-100 mb-3">
+                                        <i class="fas fa-edit me-2"></i>
+                                        Tenant Düzenle
+                                    </a>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <button type="button" class="btn btn-outline-secondary w-100 mb-3" onclick="toggleTenantStatus(@Model.ID)">
+                                        <i class="fas fa-power-off me-2"></i>
+                                        @(Model.IsActive ? "Pasifleştir" : "Aktifleştir")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleTenantStatus(tenantId) {
+    if (confirm('Tenant durumunu değiştirmek istediğinizden emin misiniz?')) {
+        $.post('@Url.Action("ToggleStatus")', { id: tenantId })
+            .done(function(result) {
+                if (result.Success) {
+                    location.reload();
+                } else {
+                    alert('Hata: ' + result.Error);
+                }
+            })
+            .fail(function() {
+                alert('İşlem sırasında bir hata oluştu.');
+            });
+    }
+}
+</script>

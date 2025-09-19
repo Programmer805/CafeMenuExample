@@ -1,0 +1,204 @@
+@model Domain.DTOs.CategoryDto
+@{
+    ViewBag.Title = "Kategori Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-tags"></i> Kategori Detayları
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Kategoriler
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Genel Bilgiler</h3>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-3">Kategori Adı:</dt>
+                                <dd class="col-sm-9"><strong>@Model.CategoryName</strong></dd>
+                                
+                                <dt class="col-sm-3">Üst Kategori:</dt>
+                                <dd class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(Model.ParentCategoryName))
+                                    {
+                                        <span class="badge bg-secondary">@Model.ParentCategoryName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Ana Kategori</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Alt Kategoriler:</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.SubCategories != null && Model.SubCategories.Any())
+                                    {
+                                        <span class="badge bg-info">@Model.SubCategories.Count() alt kategori</span>
+                                        <div class="mt-2">
+                                            @foreach (var subCategory in Model.SubCategories)
+                                            {
+                                                <span class="badge bg-light text-dark me-1">@subCategory.CategoryName</span>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Alt kategori yok</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Ürün Sayısı:</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.Products != null && Model.Products.Any())
+                                    {
+                                        <span class="badge bg-success">@Model.Products.Count() ürün</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Ürün yok</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Oluşturulma Tarihi:</dt>
+                                <dd class="col-sm-9">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</dd>
+                                
+                                <dt class="col-sm-3">Oluşturan:</dt>
+                                <dd class="col-sm-9">@Model.CreatorUserName</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    @if (Model.Products != null && Model.Products.Any())
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Bu Kategorideki Ürünler</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th>Ürün Adı</th>
+                                                <th>Fiyat</th>
+                                                <th>Resim</th>
+                                                <th>İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var product in Model.Products)
+                                            {
+                                                <tr>
+                                                    <td><strong>@product.ProductName</strong></td>
+                                                    <td>@product.Price.ToString("C")</td>
+                                                    <td>
+                                                        @if (!string.IsNullOrEmpty(product.ImagePath))
+                                                        {
+                                                            <img src="@product.ImagePath" alt="@product.ProductName" 
+                                                                 class="rounded" style="width: 30px; height: 30px; object-fit: cover;">
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="fas fa-image text-muted"></i>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <a href="@Url.Action("Details", "Product", new { id = product.ID })" 
+                                                           class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Hızlı İşlemler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-outline-warning">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Kategoriyi Düzenle
+                                </a>
+                                <a href="@Url.Action("Create", "Product", new { categoryId = Model.ID })" class="btn btn-outline-success">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Bu Kategoriye Ürün Ekle
+                                </a>
+                                <a href="@Url.Action("Create", new { parentId = Model.ID })" class="btn btn-outline-info">
+                                    <i class="fas fa-tags me-2"></i>
+                                    Alt Kategori Ekle
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(@Model.ID)">
+                                    <i class="fas fa-trash me-2"></i>
+                                    Kategoriyi Sil
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">İstatistikler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 text-center">
+                                    <div class="h1 m-0">@(Model.SubCategories?.Count ?? 0)</div>
+                                    <div class="text-muted">Alt Kategori</div>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div class="h1 m-0">@(Model.Products?.Count ?? 0)</div>
+                                    <div class="text-muted">Ürün</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(categoryId) {
+    if (confirm('Bu kategoriyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+        window.location.href = '@Url.Action("Delete")' + '/' + categoryId;
+    }
+}
+</script>

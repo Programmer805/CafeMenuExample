@@ -1,0 +1,62 @@
+<!--
+  Web.config'e eklenecek authentication ayarları:
+  
+  <system.web> içerisine eklenecek:
+-->
+
+<!-- Authentication ayarları -->
+<authentication mode="Forms">
+  <forms loginUrl="~/Auth/Login" 
+         timeout="480" 
+         name="CafeMenuAuth" 
+         slidingExpiration="true" 
+         cookieless="false" 
+         requireSSL="false" />
+</authentication>
+
+<!-- Authorization ayarları -->
+<authorization>
+  <allow users="*" />
+</authorization>
+
+<!-- Admin area için özel authorization -->
+<location path="Admin">
+  <system.web>
+    <authorization>
+      <deny users="?" />
+      <allow roles="Admin,SuperAdmin" />
+    </authorization>
+  </system.web>
+</location>
+
+<!-- Session ayarları -->
+<sessionState mode="InProc" 
+              timeout="480" 
+              cookieless="false" 
+              cookieName="CafeMenuSession" />
+
+<!-- Güvenlik ayarları -->
+<httpCookies requireSSL="false" 
+             sameSite="Lax" 
+             httpOnlyCookies="true" />
+
+<!-- MIME types (resim upload için) -->
+<system.webServer>
+  <staticContent>
+    <mimeMap fileExtension=".json" mimeType="application/json" />
+  </staticContent>
+  
+  <!-- File upload limitleri -->
+  <security>
+    <requestFiltering>
+      <requestLimits maxAllowedContentLength="5242880" /> <!-- 5 MB -->
+    </requestFiltering>
+  </security>
+</system.webServer>
+
+<!-- Connection String örneği -->
+<connectionStrings>
+  <add name="CafeMenuEntities" 
+       connectionString="Data Source=SERVER;Initial Catalog=CafeMenuDB;Integrated Security=True;MultipleActiveResultSets=True" 
+       providerName="System.Data.SqlClient" />
+</connectionStrings>

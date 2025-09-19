@@ -1,0 +1,89 @@
+@{
+    ViewBag.Title = "Tenant Menü Test";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> Tenant Bazlı Menü Kullanımı
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h5>Menü URL Formatları:</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Format</th>
+                                    <th>Örnek URL</th>
+                                    <th>Açıklama</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/menu/{tenantId}</code></td>
+                                    <td><a href="/menu/1" target="_blank">/menu/1</a></td>
+                                    <td>Tenant 1'in menüsü</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/menu/{tenantId}</code></td>
+                                    <td><a href="/menu/2" target="_blank">/menu/2</a></td>
+                                    <td>Tenant 2'nin menüsü</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/menu/{tenantId}/category/{id}</code></td>
+                                    <td><a href="/menu/1/category/1" target="_blank">/menu/1/category/1</a></td>
+                                    <td>Tenant 1'in kategori 1'i</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/menu/{tenantId}/product/{id}</code></td>
+                                    <td><a href="/menu/1/product/1" target="_blank">/menu/1/product/1</a></td>
+                                    <td>Tenant 1'in ürün 1'i</td>
+                                </tr>
+                                <tr>
+                                    <td><code>?tenantId={id}</code></td>
+                                    <td><a href="/Menu?tenantId=1" target="_blank">/Menu?tenantId=1</a></td>
+                                    <td>Query string ile</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h6><i class="fas fa-lightbulb"></i> Önemli Bilgiler:</h6>
+                        <ul class="mb-0">
+                            <li>Menü artık <strong>login gerektirmiyor</strong> - müşteriler direk erişebilir</li>
+                            <li>Her tenant sadece <strong>kendi ürün ve kategorilerini</strong> görebilir</li>
+                            <li>Tenant ID <strong>URL'den otomatik</strong> olarak alınıyor</li>
+                            <li>Geçersiz tenant ID durumunda varsayılan tenant (1) kullanılıyor</li>
+                        </ul>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6>Mevcut Tenant Bilgisi:</h6>
+                            <div class="bg-light p-3 rounded">
+                                <strong>Tenant ID:</strong> @ViewBag.TenantId<br>
+                                <strong>Debug Bilgisi:</strong><br>
+                                <pre style="font-size: 12px;">@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(CafeMenu.Infrastructure.TenantResolver.GetTenantDebugInfo(), Newtonsoft.Json.Formatting.Indented))</pre>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Test Linkleri:</h6>
+                            <div class="d-grid gap-2">
+                                <a href="/menu/1" class="btn btn-outline-primary">Tenant 1 Menüsü</a>
+                                <a href="/menu/2" class="btn btn-outline-success">Tenant 2 Menüsü</a>
+                                <a href="/menu/3" class="btn btn-outline-warning">Tenant 3 Menüsü</a>
+                                <a href="/Menu?tenantId=1" class="btn btn-outline-info">Query String ile Tenant 1</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

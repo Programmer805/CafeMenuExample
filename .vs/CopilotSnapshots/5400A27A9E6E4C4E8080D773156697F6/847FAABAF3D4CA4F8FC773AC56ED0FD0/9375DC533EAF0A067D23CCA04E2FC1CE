@@ -1,0 +1,253 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web;
+using Newtonsoft.Json;
+
+namespace CafeMenu.Helpers
+{
+    public static class ExchangeRateHelper
+    {
+        private static readonly HttpClient _httpClient = new HttpClient();
+        private static readonly string CACHE_KEY_PREFIX = "ExchangeRate_";
+        private static readonly int CACHE_DURATION_MINUTES = 15; // 15 dakika cache
+
+        // Desteklenen para birimleri
+        private static readonly Dictionary<string, string> SupportedCurrencies = new Dictionary<string, string>
+        {
+            { "TRY", "Türk Lirası" },
+            { "USD", "Amerikan Doları" },
+            { "EUR", "Euro" },
+            { "GBP", "İngiliz Sterlini" },
+            { "JPY", "Japon Yeni" },
+            { "CAD", "Kanada Doları" },
+            { "AUD", "Avustralya Doları" },
+            { "CHF", "İsviçre Frangı" }
+        };
+
+        /// <summary>
+        /// İki para birimi arasındaki güncel kuru getirir
+        /// </summary>
+        public static decimal GetExchangeRate(string fromCurrency, string toCurrency)
+        {
+            try
+            {
+                // Aynı para birimi kontrolü
+                if (string.Equals(fromCurrency, toCurrency, StringComparison.OrdinalIgnoreCase))
+                    return 1.0m;
+
+                // Cache kontrolü
+                var cacheKey = $"{CACHE_KEY_PREFIX}{fromCurrency}_{toCurrency}";
+                if (HttpContext.Current?.Cache[cacheKey] != null)
+                {
+                    return (decimal)HttpContext.Current.Cache[cacheKey];
+                }
+
+                // API'den kur bilgisini al
+                var rate = FetchExchangeRateFromAPI(fromCurrency, toCurrency);
+                
+                // Cache'e kaydet
+                if (HttpContext.Current != null && rate > 0)
+                {
+                    HttpContext.Current.Cache.Insert(cacheKey, rate, null, 
+                        DateTime.Now.AddMinutes(CACHE_DURATION_MINUTES), 
+                        TimeSpan.Zero);
+                }
+
+                return rate > 0 ? rate : 1.0m;
+            }
+            catch
+            {
+                return 1.0m; // Hata durumunda varsayılan değer
+            }
+        }
+
+        /// <summary>
+        /// Async olarak döviz kuru getirir
+        /// </summary>
+        public static async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency)
+        {
+            try
+            {
+                // Aynı para birimi kontrolü
+                if (string.Equals(fromCurrency, toCurrency, StringComparison.OrdinalIgnoreCase))
+                    return 1.0m;
+
+                // Cache kontrolü
+                var cacheKey = $"{CACHE_KEY_PREFIX}{fromCurrency}_{toCurrency}";
+                if (HttpContext.Current?.Cache[cacheKey] != null)
+                {
+                    return (decimal)HttpContext.Current.Cache[cacheKey];
+                }
+
+                // API'den kur bilgisini al
+                var rate = await FetchExchangeRateFromAPIAsync(fromCurrency, toCurrency);
+                
+                // Cache'e kaydet
+                if (HttpContext.Current != null && rate > 0)
+                {
+                    HttpContext.Current.Cache.Insert(cacheKey, rate, null, 
+                        DateTime.Now.AddMinutes(CACHE_DURATION_MINUTES), 
+                        TimeSpan.Zero);
+                }
+
+                return rate > 0 ? rate : 1.0m;
+            }
+            catch
+            {
+                return 1.0m; // Hata durumunda varsayılan değer
+            }
+        }
+
+        /// <summary>
+        /// API'den döviz kuru çeker (Synchronous)
+        /// </summary>
+        private static decimal FetchExchangeRateFromAPI(string fromCurrency, string toCurrency)
+        {
+            try
+            {
+                var url = $"https://api.exchangerate-api.com/v4/latest/{fromCurrency}";
+                
+                var response = _httpClient.GetStringAsync(url).Result;
+                var data = JsonConvert.DeserializeObject<ExchangeRateResponse>(response);
+                
+                if (data?.Rates != null && data.Rates.ContainsKey(toCurrency))
+                {
+                    return (decimal)data.Rates[toCurrency];
+                }
+
+                // Fallback: Sabit kurlar (demo için)
+                return GetFallbackRate(fromCurrency, toCurrency);
+            }
+            catch
+            {
+                // API başarısız olursa sabit kurları kullan
+                return GetFallbackRate(fromCurrency, toCurrency);
+            }
+        }
+
+        /// <summary>
+        /// API'den döviz kuru çeker (Asynchronous)
+        /// </summary>
+        private static async Task<decimal> FetchExchangeRateFromAPIAsync(string fromCurrency, string toCurrency)
+        {
+            try
+            {
+                var url = $"https://api.exchangerate-api.com/v4/latest/{fromCurrency}";
+                
+                var response = await _httpClient.GetStringAsync(url);
+                var data = JsonConvert.DeserializeObject<ExchangeRateResponse>(response);
+                
+                if (data?.Rates != null && data.Rates.ContainsKey(toCurrency))
+                {
+                    return (decimal)data.Rates[toCurrency];
+                }
+
+                // Fallback: Sabit kurlar (demo için)
+                return GetFallbackRate(fromCurrency, toCurrency);
+            }
+            catch
+            {
+                // API başarısız olursa sabit kurları kullan
+                return GetFallbackRate(fromCurrency, toCurrency);
+            }
+        }
+
+        /// <summary>
+        /// API başarısız olduğunda kullanılacak sabit kurlar
+        /// </summary>
+        private static decimal GetFallbackRate(string fromCurrency, string toCurrency)
+        {
+            var fallbackRates = new Dictionary<string, decimal>
+            {
+                { "USD_TRY", 32.50m },
+                { "EUR_TRY", 35.20m },
+                { "GBP_TRY", 41.80m },
+                { "JPY_TRY", 0.22m },
+                { "TRY_USD", 0.0308m },
+                { "TRY_EUR", 0.0284m },
+                { "TRY_GBP", 0.0239m },
+                { "USD_EUR", 0.92m },
+                { "EUR_USD", 1.09m },
+                { "USD_GBP", 0.78m },
+                { "GBP_USD", 1.28m }
+            };
+
+            var key = $"{fromCurrency}_{toCurrency}";
+            if (fallbackRates.ContainsKey(key))
+            {
+                return fallbackRates[key];
+            }
+
+            // Ters kur kontrolü
+            var reverseKey = $"{toCurrency}_{fromCurrency}";
+            if (fallbackRates.ContainsKey(reverseKey))
+            {
+                return 1.0m / fallbackRates[reverseKey];
+            }
+
+            return 1.0m;
+        }
+
+        /// <summary>
+        /// Fiyatı belirtilen döviz kuruna göre çevirir
+        /// </summary>
+        public static decimal ConvertPrice(decimal price, string fromCurrency, string toCurrency)
+        {
+            var rate = GetExchangeRate(fromCurrency, toCurrency);
+            return price * rate;
+        }
+
+        /// <summary>
+        /// Desteklenen para birimlerini döndürür
+        /// </summary>
+        public static Dictionary<string, string> GetSupportedCurrencies()
+        {
+            return SupportedCurrencies;
+        }
+
+        /// <summary>
+        /// Para birimi çiftini formatlar
+        /// </summary>
+        public static string FormatCurrencyPair(string fromCurrency, string toCurrency)
+        {
+            return $"{fromCurrency}/{toCurrency}";
+        }
+
+        /// <summary>
+        /// Cache'i temizler
+        /// </summary>
+        public static void ClearCache()
+        {
+            if (HttpContext.Current?.Cache != null)
+            {
+                var cache = HttpContext.Current.Cache;
+                var keysToRemove = new List<string>();
+                
+                foreach (System.Collections.DictionaryEntry entry in cache)
+                {
+                    if (entry.Key.ToString().StartsWith(CACHE_KEY_PREFIX))
+                    {
+                        keysToRemove.Add(entry.Key.ToString());
+                    }
+                }
+                
+                foreach (var key in keysToRemove)
+                {
+                    cache.Remove(key);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// ExchangeRate API response modeli
+    /// </summary>
+    public class ExchangeRateResponse
+    {
+        public string Base { get; set; }
+        public DateTime Date { get; set; }
+        public Dictionary<string, double> Rates { get; set; }
+    }
+}

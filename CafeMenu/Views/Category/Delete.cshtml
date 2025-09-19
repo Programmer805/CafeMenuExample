@@ -1,0 +1,236 @@
+@model Domain.DTOs.CategoryDto
+@{
+    ViewBag.Title = "Kategori Sil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-trash"></i> Kategori Sil
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-info">
+                                    <i class="fas fa-eye"></i> Detaylar
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Kategoriler
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h3 class="card-title">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Kategori Silme Onayı
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger">
+                                <h4>Dikkat!</h4>
+                                <p>Bu kategoriyi silmek üzeresiniz. Bu işlem <strong>geri alınamaz</strong>!</p>
+                            </div>
+                            
+                            <h4>Silinecek Kategori:</h4>
+                            <dl class="row">
+                                <dt class="col-sm-3">Kategori Adı:</dt>
+                                <dd class="col-sm-9"><strong>@Model.CategoryName</strong></dd>
+                                
+                                <dt class="col-sm-3">Üst Kategori:</dt>
+                                <dd class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(Model.ParentCategoryName))
+                                    {
+                                        <span class="badge bg-secondary">@Model.ParentCategoryName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Ana Kategori</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Alt Kategoriler:</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.SubCategories != null && Model.SubCategories.Any())
+                                    {
+                                        <span class="badge bg-warning">@Model.SubCategories.Count() alt kategori var!</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success">Alt kategori yok</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Ürünler:</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.Products != null && Model.Products.Any())
+                                    {
+                                        <span class="badge bg-danger">@Model.Products.Count() ürün var!</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success">Ürün yok</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Oluşturulma:</dt>
+                                <dd class="col-sm-9">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm") - @Model.CreatorUserName</dd>
+                            </dl>
+
+                            @if ((Model.SubCategories != null && Model.SubCategories.Any()) || (Model.Products != null && Model.Products.Any()))
+                            {
+                                <div class="alert alert-warning">
+                                    <h5><i class="fas fa-exclamation-triangle"></i> Uyarı</h5>
+                                    <p>Bu kategori silinemez çünkü:</p>
+                                    <ul>
+                                        @if (Model.SubCategories != null && Model.SubCategories.Any())
+                                        {
+                                            <li><strong>@Model.SubCategories.Count() alt kategori</strong> bu kategoriye bağlı</li>
+                                        }
+                                        @if (Model.Products != null && Model.Products.Any())
+                                        {
+                                            <li><strong>@Model.Products.Count() ürün</strong> bu kategoride bulunuyor</li>
+                                        }
+                                    </ul>
+                                    <p class="mb-0">Önce bu bağımlılıkları kaldırın veya başka kategorilere taşıyın.</p>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-warning">
+                                        <i class="fas fa-edit"></i> Kategoriyi Düzenle
+                                    </a>
+                                    <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Geri Dön
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-success">
+                                    <h5><i class="fas fa-check-circle"></i> Silme Uygun</h5>
+                                    <p class="mb-0">Bu kategori güvenle silinebilir. Herhangi bir alt kategori veya ürün bağımlılığı bulunmuyor.</p>
+                                </div>
+
+                                @using (Html.BeginForm("Delete", "Category", new { id = Model.ID }, FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">
+                                            <i class="fas fa-trash"></i> Evet, Kategoriyi Sil
+                                        </button>
+                                        <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Hayır, İptal Et
+                                        </a>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    @if (Model.SubCategories != null && Model.SubCategories.Any())
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title text-warning">
+                                    <i class="fas fa-sitemap"></i> Alt Kategoriler
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Bu kategorinin alt kategorileri:</p>
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var subCategory in Model.SubCategories)
+                                    {
+                                        <li class="list-group-item">
+                                            <i class="fas fa-tag text-primary me-2"></i>
+                                            @subCategory.CategoryName
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (Model.Products != null && Model.Products.Any())
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title text-danger">
+                                    <i class="fas fa-box"></i> Ürünler
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Bu kategorideki ürünler:</p>
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var product in Model.Products.Take(5))
+                                    {
+                                        <li class="list-group-item">
+                                            <i class="fas fa-cube text-success me-2"></i>
+                                            @product.ProductName
+                                            <span class="float-end">@product.Price.ToString("C")</span>
+                                        </li>
+                                    }
+                                    @if (Model.Products.Count() > 5)
+                                    {
+                                        <li class="list-group-item text-center text-muted">
+                                            ... ve @(Model.Products.Count() - 5) ürün daha
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Alternatif İşlemler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Edit", new { id = Model.ID })" class="btn btn-outline-warning">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Kategoriyi Düzenle
+                                </a>
+                                @if (Model.Products != null && Model.Products.Any())
+                                {
+                                    <a href="@Url.Action("Index", "Product", new { categoryId = Model.ID })" class="btn btn-outline-info">
+                                        <i class="fas fa-box me-2"></i>
+                                        Ürünleri Görüntüle
+                                    </a>
+                                }
+                                <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye me-2"></i>
+                                    Detayları Görüntüle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    return confirm('Bu kategoriyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!');
+}
+</script>

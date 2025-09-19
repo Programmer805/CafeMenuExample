@@ -1,0 +1,150 @@
+@model IEnumerable<Domain.DTOs.ProductDto>
+@{
+    ViewBag.Title = "Ürün Yönetimi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-box"></i> Ürün Yönetimi
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Create")" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Yeni Ürün Ekle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <div class="row row-deck row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Ürünler</h3>
+                        </div>
+                        <div class="card-body">
+                            @if (Model != null && Model.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th>Resim</th>
+                                                <th>Ürün Adı</th>
+                                                <th>Kategori</th>
+                                                <th>Fiyat</th>
+                                                <th>Oluşturma Tarihi</th>
+                                                <th>Oluşturan</th>
+                                                <th class="w-1">İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var product in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @if (!string.IsNullOrEmpty(product.ImagePath))
+                                                        {
+                                                            <img src="@product.ImagePath" alt="@product.ProductName" 
+                                                                 class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="avatar" style="width: 50px; height: 50px;">
+                                                                <i class="fas fa-image"></i>
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <strong>@product.ProductName</strong>
+                                                        @if (!string.IsNullOrEmpty(product.Description))
+                                                        {
+                                                            <br><small class="text-muted">@product.Description</small>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-blue">@product.CategoryName</span>
+                                                    </td>
+                                                    <td>
+                                                        <strong>@product.Price.ToString("C")</strong>
+                                                    </td>
+                                                    <td>@product.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                                    <td>@product.CreatorUserName</td>
+                                                    <td>
+                                                        <div class="btn-list flex-nowrap">
+                                                            <a href="@Url.Action("Details", new { id = product.ID })" 
+                                                               class="btn btn-outline-primary btn-sm" title="Detaylar">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("Edit", new { id = product.ID })" 
+                                                               class="btn btn-outline-warning btn-sm" title="Düzenle">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("Delete", new { id = product.ID })" 
+                                                               class="btn btn-outline-danger btn-sm" title="Sil">
+                                                                <i class="fas fa-trash"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <p class="empty-title">Henüz ürün eklenmemiş</p>
+                                    <p class="empty-subtitle text-muted">
+                                        İlk ürününüzü eklemek için yukarıdaki "Yeni Ürün Ekle" butonunu kullanın.
+                                    </p>
+                                    <div class="empty-action">
+                                        <a href="@Url.Action("Create")" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            İlk Ürünü Ekle
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+﻿using System.Web.Mvc;
+using CafeMenu.Infrastructure;
+using Business.Services;
+using Domain.Interfaces.Services;
+using System.Linq;
+
+namespace CafeMenu.Controllers
+{
+    [TenantAuthorize]
+    public class AdminController : BaseController
+    {
+        private readonly ICategoryService _categoryService;
+        private readonly IProductService _productService;
+        private readonly IUserService _userService;
+        private readonly ITenantService _tenantService;
+
+        public AdminController(ICategoryService categoryService, IProductService productService, 
+                              IUserService userService, ITenantService tenantService)
+        {
+            _categoryService = categoryService;
+            _productService = productService;
+            _userService = userService;
+            _tenantService = tenantService;
+        }
+
+        public ActionResult Index()
+        {
+            var tenantId = TenantResolver.GetCurrentTenantId();
+            
+            // Dashboard istatistikleri
+            ViewBag.CategoryCount = _categoryService.GetTotalCount(tenantId);
+            ViewBag.ProductCount = _productService.GetTotalCount(tenantId);
+            ViewBag.UserCount = _userService.GetTotalCount(tenantId);
+            ViewBag.TenantCount = _tenantService.GetAll().Count();
+            
+            return View();
+        }
+    }
+}

@@ -1,0 +1,108 @@
+@model Domain.DTOs.TenantUpdateDto
+@{
+    ViewBag.Title = "Tenant Düzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-building"></i> Tenant Düzenle
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-info">
+                                    <i class="fas fa-eye"></i> Detaylar
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Geri Dön
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Tenant Bilgileri</h3>
+                        </div>
+                        <div class="card-body">
+                            @using (Html.BeginForm("Edit", "Tenant", FormMethod.Post, new { @class = "row g-3" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(m => m.ID)
+                                
+                                <div class="col-md-12">
+                                    <label for="TenantName" class="form-label">Tenant Adı</label>
+                                    @Html.TextBoxFor(m => m.TenantName, new { @class = "form-control", placeholder = "Tenant adını giriniz" })
+                                    @Html.ValidationMessageFor(m => m.TenantName, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+                                        <label class="form-check-label" for="IsActive">
+                                            Aktif Durum
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Bu seçenek kaldırılırsa tenant pasif olur ve sisteme giriş yapamaz.
+                                    </small>
+                                    @Html.ValidationMessageFor(m => m.IsActive, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="card-footer text-end">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Güncelle
+                                        </button>
+                                        <a href="@Url.Action("Details", new { id = Model.ID })" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> İptal
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Bilgilendirme</h3>
+                        </div>
+                        <div class="card-body">
+                            <h4>Tenant ID: @Model.ID</h4>
+                            <p class="text-muted mb-3">
+                                Bu tenant'ın sistemdeki benzersiz numarasıdır ve değiştirilemez.
+                            </p>
+                            
+                            <h4>Durum Değişikliği</h4>
+                            <p class="text-muted">
+                                Tenant'ı pasif yapmak:
+                            </p>
+                            <ul class="text-muted">
+                                <li>Tüm kullanıcıları sistemden çıkarır</li>
+                                <li>Yeni girişleri engeller</li>
+                                <li>Verileri korur ancak erişimi kaldırır</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

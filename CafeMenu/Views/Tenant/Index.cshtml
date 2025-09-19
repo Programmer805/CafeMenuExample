@@ -1,0 +1,163 @@
+@model IEnumerable<Domain.DTOs.TenantDto>
+@{
+    ViewBag.Title = "Tenant Yönetimi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                <i class="fas fa-building"></i> Tenant Yönetimi
+                            </h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <a href="@Url.Action("Create")" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Yeni Tenant Ekle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <div class="row row-deck row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Tenantlar</h3>
+                        </div>
+                        <div class="card-body">
+                            @if (Model != null && Model.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Tenant Adı</th>
+                                                <th>Durum</th>
+                                                <th>Oluşturma Tarihi</th>
+                                                <th class="w-1">İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var tenant in Model)
+                                            {
+                                                <tr>
+                                                    <td>@tenant.ID</td>
+                                                    <td>
+                                                        <div class="d-flex py-1 align-items-center">
+                                                            <div class="avatar me-2" style="background-image: url('/Content/images/tenant-default.png')"></div>
+                                                            <div class="flex-fill">
+                                                                <div class="font-weight-medium">@tenant.TenantName</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if (tenant.IsActive)
+                                                        {
+                                                            <span class="badge bg-success">Aktif</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger">Pasif</span>
+                                                        }
+                                                    </td>
+                                                    <td>@tenant.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                                    <td>
+                                                        <div class="btn-list flex-nowrap">
+                                                            <a href="@Url.Action("Details", new { id = tenant.ID })" 
+                                                               class="btn btn-outline-primary btn-sm" title="Detaylar">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("Users", new { id = tenant.ID })" 
+                                                               class="btn btn-outline-info btn-sm" title="Kullanıcılar">
+                                                                <i class="fas fa-users"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("Edit", new { id = tenant.ID })" 
+                                                               class="btn btn-outline-warning btn-sm" title="Düzenle">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                                    onclick="toggleTenantStatus(@tenant.ID)" 
+                                                                    title="@(tenant.IsActive ? "Pasifleştir" : "Aktifleştir")">
+                                                                <i class="fas fa-power-off"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <p class="empty-title">Henüz tenant eklenmemiş</p>
+                                    <p class="empty-subtitle text-muted">
+                                        İlk tenant'ınızı eklemek için yukarıdaki "Yeni Tenant Ekle" butonunu kullanın.
+                                    </p>
+                                    <div class="empty-action">
+                                        <a href="@Url.Action("Create")" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            İlk Tenant'ı Ekle
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleTenantStatus(tenantId) {
+    if (confirm('Tenant durumunu değiştirmek istediğinizden emin misiniz?')) {
+        $.post('@Url.Action("ToggleStatus")', { id: tenantId })
+            .done(function(result) {
+                if (result.Success) {
+                    location.reload();
+                } else {
+                    alert('Hata: ' + result.Error);
+                }
+            })
+            .fail(function() {
+                alert('İşlem sırasında bir hata oluştu.');
+            });
+    }
+}
+</script>

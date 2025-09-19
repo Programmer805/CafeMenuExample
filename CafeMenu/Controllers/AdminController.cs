@@ -1,0 +1,83 @@
+using System.Web.Mvc;
+using CafeMenu.Infrastructure;
+using Business.Services;
+using Domain.Interfaces.Services;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using CafeMenu.Helpers;
+
+namespace CafeMenu.Controllers
+{
+    [TenantAuthorize]
+    public class AdminController : BaseController
+    {
+        private readonly ICategoryService _categoryService;
+        private readonly IProductService _productService;
+        private readonly IUserService _userService;
+        private readonly ITenantService _tenantService;
+
+        public AdminController(ICategoryService categoryService, IProductService productService, 
+                              IUserService userService, ITenantService tenantService)
+        {
+            _categoryService = categoryService;
+            _productService = productService;
+            _userService = userService;
+            _tenantService = tenantService;
+        }
+
+        public ActionResult Index()
+        {
+            var tenantId = TenantResolver.GetCurrentTenantId();
+            
+            // Dashboard istatistikleri
+            ViewBag.CategoryCount = _categoryService.GetTotalCount(tenantId);
+            ViewBag.ProductCount = _productService.GetTotalCount(tenantId);
+            ViewBag.UserCount = _userService.GetTotalCount(tenantId);
+            ViewBag.TenantCount = _tenantService.GetAll().Count();
+            
+            return View();
+        }
+
+        // AJAX: Return categories with product counts for the dashboard widget
+        [HttpGet]
+        public async Task<JsonResult> GetCategoryProductCounts()
+        {
+            var tenantId = TenantResolver.GetCurrentTenantId();
+            var categories = await _categoryService.GetAllAsync(tenantId);
+
+            var result = new List<object>();
+
+            foreach (var c in categories)
+            {
+                // Get products including subcategories for accurate count
+                var products = await _productService.GetByCategoryWithSubCategoriesAsync(c.ID, tenantId);
+                var count = products?.Count() ?? 0;
+                result.Add(new { Id = c.ID, Name = c.CategoryName, ProductCount = count });
+            }
+
+            return TenantJsonResult(result);
+        }
+
+        // AJAX: Return current exchange rates relative to base currency (default TRY)
+        [HttpGet]
+        public async Task<JsonResult> GetExchangeRates(string baseCurrency = "TRY")
+        {
+            var supported = ExchangeRateHelper.GetSupportedCurrencies();
+            var list = new List<object>();
+
+            foreach (var kv in supported)
+            {
+                var code = kv.Key;
+                var name = kv.Value;
+                if (string.Equals(code, baseCurrency, System.StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var rate = await ExchangeRateHelper.GetExchangeRateAsync(code, baseCurrency);
+                list.Add(new { Code = code, Name = name, Rate = rate });
+            }
+
+            return TenantJsonResult(list);
+        }
+    }
+}

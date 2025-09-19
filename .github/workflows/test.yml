@@ -1,0 +1,43 @@
+name: Test Pipeline
+
+on:
+  push:
+    branches: [ test ]
+  pull_request:
+    branches: [ test ]
+
+env:
+  SOLUTION_NAME: CafeMenu.sln
+  PROJECT_NAME: CafeMenu/CafeMenu.csproj
+  CONFIGURATION: Release
+  DOTNET_VERSION: 4.8
+
+jobs:
+  build-test-deploy:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.5
+      
+    - name: Restore NuGet packages
+      run: nuget restore ${{ env.SOLUTION_NAME }}
+      
+    - name: Build solution
+      run: msbuild ${{ env.SOLUTION_NAME }} /p:Configuration=${{ env.CONFIGURATION }} /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:PublishUrl=./publish
+      
+    - name: Run unit tests (if any)
+      run: |
+        # Add test execution commands here when tests are available
+        echo "No unit tests configured yet"
+        
+    - name: Deploy to Test Environment
+      run: |
+        # Deployment to test environment
+        echo "Deploying to test environment..."
+        # Add your deployment commands here
+        # Example: Azure Web App deployment, FTP upload, etc.
